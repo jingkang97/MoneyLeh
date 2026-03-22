@@ -7,35 +7,99 @@
 
 import SwiftUI
 
+struct Chip : View {
+    let label: String
+    let color: Color
+    let systemImage: String
+    
+    var body : some View {
+        HStack{
+            Text(label).fontWeight(.semibold)
+            Image(systemName: systemImage)
+                            .font(.caption)
+        }.font(.subheadline)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(color.opacity(0.15))
+            .foregroundColor(color)
+            .clipShape(Capsule())
+    }
+}
+
 struct ContentView: View {
+    
+    var weekRange: String {
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2 // Monday start
+        
+        if let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: Date())?.start,
+           let endOfWeek = calendar.date(byAdding: .day, value: 6, to: startOfWeek) {
+            return "\(startOfWeek.formatted(.dateTime.day().month())) - \(endOfWeek.formatted(.dateTime.day().month()))"
+        }
+        
+        return ""
+    }
+    
+    var formattedDate: String {
+        let now = Date()
+        let calendar = Calendar.current
+        
+        switch selectedPeriod {
+        case "Daily":
+            return now.formatted(.dateTime.day().month().year())
+        case "Weekly":
+            return weekRange
+        case "Monthly":
+            return now.formatted(.dateTime.month().year())
+        default:
+            fatalError("Unhandled period")
+        }
+    }
+    
     private var currencyCode: String {
         Locale.current.currency?.identifier ?? "SGD"
     }
-    
-    private var dailySpending: Double = 140.00
+        
+    @State private var spending: Double = 140.10
+    @State private var selectedPeriod: String = "Daily"
     
     var spendingCard: some View {
         VStack (alignment: .leading, spacing: 12){
             HStack {
-                Text("Daily Spending")
+                Text("\(selectedPeriod) Spending")
                     .font(.headline)
                 Spacer()
-                Image(systemName: "ellipsis")
-                    .foregroundStyle(.secondary)
+                Menu {
+                    Button(action: {selectedPeriod = "Daily"}) {Label("Daily", systemImage: selectedPeriod == "Daily" ? "checkmark" : "")
+                    }
+                    Button(action: {selectedPeriod = "Weekly"}) {Label("Weekly", systemImage: selectedPeriod == "Weekly" ? "checkmark" : "")
+                    }
+                    Button(action: {selectedPeriod = "Monthly"}) {Label("Monthly", systemImage: selectedPeriod == "Monthly" ? "checkmark" : "")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .foregroundColor(.gray)
+                        .foregroundStyle(.secondary)
+                }
             }
             
-            Text(Date.now, format: .dateTime.day().month().year())
+            Text(formattedDate)
                 .font(.body)
                 .fontWeight(.regular)
                 .foregroundColor(.secondary)
             
-            Text(dailySpending, format: .currency(code: currencyCode))
-                .font(.system(size: 40, weight: .bold, design: .rounded))
+            HStack (alignment: .bottom) {
+                Text(spending, format: .currency(code: currencyCode))
+                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                Spacer()
+                Chip(label: "15%", color: Color.green, systemImage: "arrowtriangle.down.fill")
+            }
+            
         }
         .padding(20)
         .frame(maxWidth: .infinity)
         .background(Color.white)
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
     }
     
