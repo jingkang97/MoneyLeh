@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Charts
 
 struct Chip : View {
     let label: String
@@ -26,6 +27,19 @@ struct Chip : View {
     }
 }
 
+struct CategorySpending: Identifiable {
+    let id = UUID()
+    let category: String
+    let amount: Double
+}
+
+let data: [CategorySpending] = [
+    .init(category: "Food", amount: 200)
+    , .init(category: "Transport", amount: 150)
+    , .init(category: "Shopping", amount: 300)
+    , .init(category: "Others", amount: 120)
+]
+
 struct ContentView: View {
     
     var weekRange: String {
@@ -42,8 +56,6 @@ struct ContentView: View {
     
     var formattedDate: String {
         let now = Date()
-        let calendar = Calendar.current
-        
         switch selectedPeriod {
         case "Daily":
             return now.formatted(.dateTime.day().month().year())
@@ -97,11 +109,46 @@ struct ContentView: View {
             
         }
         .padding(20)
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
     }
+    
+    var monthlyBreakdownCard : some View {
+        VStack (alignment: .leading, spacing: 12) {
+            Text("Monthly Breakdown").font(.headline)
+            HStack {
+                ZStack {
+                    Chart(data) { item in
+                        SectorMark(
+                            angle: .value("Amount", item.amount),
+                            innerRadius: .ratio(0.65),
+                            angularInset: 3, // spacing between slices
+                        )
+                        .cornerRadius(6)
+                        .foregroundStyle(by: .value("Category", item.category))
+                    }.frame(height: 220)
+                    
+                    VStack {
+                        Text(750.20, format: .currency(code: currencyCode))
+                            .font(.system(.title2, design: .rounded))
+                                .fontWeight(.bold)
+                        Text("Spent")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            
+                    }
+                }
+            }
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
+    }
+        
     
     var header: some View {
         HStack(alignment: .center) {
@@ -126,11 +173,10 @@ struct ContentView: View {
         ScrollView {
             VStack {
                 spendingCard
-                Spacer()
+                monthlyBreakdownCard
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding()
         }.background(Color(red: 0.95, green: 0.95, blue: 0.97).ignoresSafeArea())
-        
     }
 }
 
