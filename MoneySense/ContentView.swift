@@ -71,9 +71,38 @@ struct ContentView: View {
     private var currencyCode: String {
         Locale.current.currency?.identifier ?? "SGD"
     }
+
+    /// Menu rows must not use `systemImage: ""` — empty names trigger "No symbol named ''" in the console.
+    @ViewBuilder
+    private func periodMenuRow(title: String, isSelected: Bool) -> some View {
+        HStack {
+            Text(title)
+            if isSelected {
+                Image(systemName: "checkmark")
+            }
+        }
+    }
         
     @State private var spending: Double = 140.10
     @State private var selectedPeriod: String = "Daily"
+
+    private var sortedBreakdownData: [CategorySpending] {
+        data.sorted { $0.amount > $1.amount }
+    }
+
+    private var breakdownTotal: Double {
+        data.reduce(0) { $0 + $1.amount }
+    }
+
+    private func categoryColor(_ name: String) -> Color {
+        switch name {
+            case "Food": return Color(red: 1.0, green: 0.58, blue: 0.0)
+            case "Transport": return Color(red: 0.2, green: 0.55, blue: 0.95)
+            case "Shopping": return Color(red: 1.0, green: 0.8, blue: 0.0)
+            case "Others": return Color(red: 0.55, green: 0.38, blue: 0.92)
+            default: return .gray
+        }
+    }
     
     var spendingCard: some View {
         VStack (alignment: .leading, spacing: 12){
@@ -82,11 +111,14 @@ struct ContentView: View {
                     .font(.headline)
                 Spacer()
                 Menu {
-                    Button(action: {selectedPeriod = "Daily"}) {Label("Daily", systemImage: selectedPeriod == "Daily" ? "checkmark" : "")
+                    Button { selectedPeriod = "Daily" } label: {
+                        periodMenuRow(title: "Daily", isSelected: selectedPeriod == "Daily")
                     }
-                    Button(action: {selectedPeriod = "Weekly"}) {Label("Weekly", systemImage: selectedPeriod == "Weekly" ? "checkmark" : "")
+                    Button { selectedPeriod = "Weekly" } label: {
+                        periodMenuRow(title: "Weekly", isSelected: selectedPeriod == "Weekly")
                     }
-                    Button(action: {selectedPeriod = "Monthly"}) {Label("Monthly", systemImage: selectedPeriod == "Monthly" ? "checkmark" : "")
+                    Button { selectedPeriod = "Monthly" } label: {
+                        periodMenuRow(title: "Monthly", isSelected: selectedPeriod == "Monthly")
                     }
                 } label: {
                     Image(systemName: "ellipsis")
@@ -116,30 +148,52 @@ struct ContentView: View {
     }
     
     var monthlyBreakdownCard : some View {
-        VStack (alignment: .leading, spacing: 12) {
+        // add a multiselect drop down to chooose up to 3 categories, the rest is others
+        VStack(alignment: .leading, spacing: 12) {
             Text("Monthly Breakdown").font(.headline)
-            HStack {
+
+            HStack(alignment: .center, spacing: 16) {
                 ZStack {
-                    Chart(data) { item in
+                    Chart(sortedBreakdownData) { item in
                         SectorMark(
                             angle: .value("Amount", item.amount),
                             innerRadius: .ratio(0.65),
-                            angularInset: 3, // spacing between slices
+                            angularInset: 3
                         )
                         .cornerRadius(6)
-                        .foregroundStyle(by: .value("Category", item.category))
-                    }.frame(height: 220)
-                    
-                    VStack {
-                        Text(750.20, format: .currency(code: currencyCode))
+                        .foregroundStyle(categoryColor(item.category))
+                    }
+                    .chartLegend(.hidden)
+
+                    VStack(spacing: 2) {
+                        Text(breakdownTotal, format: .currency(code: currencyCode))
                             .font(.system(.title2, design: .rounded))
-                                .fontWeight(.bold)
-                        Text("Spent")
+                            .fontWeight(.bold)
+                        Text("spent")
                             .font(.caption)
-                            .foregroundColor(.gray)
-                            
+                            .foregroundStyle(.secondary)
                     }
                 }
+
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(sortedBreakdownData) { item in
+                        HStack(alignment: .center, spacing: 10) {
+                            RoundedRectangle(cornerRadius: 3, style: .continuous)
+                                .fill(categoryColor(item.category))
+                                .frame(width: 10, height: 10)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(item.category)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.primary)
+                                Text(item.amount, format: .currency(code: currencyCode))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .padding(20)
