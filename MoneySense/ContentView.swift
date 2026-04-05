@@ -148,11 +148,11 @@ struct ContentView: View {
     }
     
     var monthlyBreakdownCard : some View {
-        // add a multiselect drop down to chooose up to 3 categories, the rest is others
+        // TODO: add a multiselect drop down to chooose up to 3 categories, the rest is others
         VStack(alignment: .leading, spacing: 12) {
             Text("Monthly Breakdown").font(.headline)
 
-            HStack(alignment: .center, spacing: 16) {
+            HStack(alignment: .center, spacing: 20) {
                 ZStack {
                     Chart(sortedBreakdownData) { item in
                         SectorMark(
@@ -173,27 +173,29 @@ struct ContentView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                }
+                }.frame(maxWidth: .infinity)
 
+                
                 VStack(alignment: .leading, spacing: 12) {
                     ForEach(sortedBreakdownData) { item in
                         HStack(alignment: .center, spacing: 10) {
                             RoundedRectangle(cornerRadius: 3, style: .continuous)
                                 .fill(categoryColor(item.category))
                                 .frame(width: 10, height: 10)
-
+                            
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(item.category)
                                     .font(.subheadline)
                                     .foregroundStyle(.primary)
+                                
                                 Text(item.amount, format: .currency(code: currencyCode))
-                                    .font(.caption)
+                                    .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
                         }
                     }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                }.frame(alignment: .leading)
+                .padding(.trailing, 16)
             }
         }
         .padding(20)
@@ -201,6 +203,84 @@ struct ContentView: View {
         .background(Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
+    }
+    
+    struct Transaction: Identifiable {
+        let id = UUID()
+        let title: String
+        let date: String
+        let amount: Double
+        let icon: String
+        let color: Color
+    }
+    
+    let transactions = [
+        Transaction(title: "luckin", date: "9 Mar 2026", amount: -32.01, icon: "fork.knife", color: .orange),
+        Transaction(title: "mrt", date: "9 Mar 2026", amount: -15.05, icon: "tram.fill", color: .blue),
+        Transaction(title: "kirby", date: "8 Mar 2026", amount: -20.00, icon: "gift.fill", color: .yellow),
+    ]
+    
+    var recentTransactions: some View {
+        
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("Recent Transaction")
+                    .font(.headline)
+                Spacer()
+                Button(action: {
+                    
+                }) {
+                    HStack(spacing: 4) {
+                        Text("See All")
+                        Image(systemName: "chevron.right")
+                    }
+                    .font(.subheadline)
+                }
+            }
+            
+            
+            VStack(spacing: 0) {
+                ForEach(transactions.indices, id: \.self) { index in
+                    
+                    let transaction = transactions[index]
+                    
+                    HStack(spacing: 12) {
+                        ZStack {
+                            Circle()
+                                .fill(transaction.color.opacity(0.2))
+                                .frame(width: 40, height: 40)
+                            
+                            Image(systemName: transaction.icon)
+                                .foregroundColor(transaction.color)
+                                .font(.system(size: 16, weight: .semibold))
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(transaction.title)
+                            Text(transaction.date)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Text(String(format: "%.2f", transaction.amount))
+                            .foregroundStyle(.red)
+                    }
+                    .padding()
+                    
+                    // Divider (not after last item)
+                    if index != transactions.count - 1 {
+                        Divider()
+                            .padding(.leading, 60)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
+        }
     }
         
     
@@ -228,6 +308,7 @@ struct ContentView: View {
             VStack {
                 spendingCard
                 monthlyBreakdownCard
+                recentTransactions
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding()
         }.background(Color(red: 0.95, green: 0.95, blue: 0.97).ignoresSafeArea())
