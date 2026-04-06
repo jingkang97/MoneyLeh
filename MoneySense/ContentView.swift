@@ -2,31 +2,32 @@
 //  ContentView.swift
 //  MoneySense
 //
-//  Created by Jing Kang Ng on 8/3/26.
-//
 
 import SwiftUI
 import Charts
 
-struct Chip : View {
+// MARK: - Chip
+struct Chip: View {
     let label: String
     let color: Color
     let systemImage: String
     
-    var body : some View {
-        HStack{
+    var body: some View {
+        HStack {
             Text(label).fontWeight(.semibold)
             Image(systemName: systemImage)
-                            .font(.caption)
-        }.font(.subheadline)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(color.opacity(0.15))
-            .foregroundColor(color)
-            .clipShape(Capsule())
+                .font(.caption)
+        }
+        .font(.subheadline)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(color.opacity(0.15))
+        .foregroundColor(color)
+        .clipShape(Capsule())
     }
 }
 
+// MARK: - Model
 struct CategorySpending: Identifiable {
     let id = UUID()
     let category: String
@@ -34,23 +35,30 @@ struct CategorySpending: Identifiable {
 }
 
 let data: [CategorySpending] = [
-    .init(category: "Food", amount: 200)
-    , .init(category: "Transport", amount: 150)
-    , .init(category: "Shopping", amount: 300)
-    , .init(category: "Others", amount: 120)
+    .init(category: "Food", amount: 200),
+    .init(category: "Transport", amount: 150),
+    .init(category: "Shopping", amount: 300),
+    .init(category: "Others", amount: 120)
 ]
 
+// MARK: - ContentView
 struct ContentView: View {
+    
+    @State private var spending: Double = 140.10
+    @State private var selectedPeriod: String = "Daily"
+    
+    private var currencyCode: String {
+        Locale.current.currency?.identifier ?? "SGD"
+    }
     
     var weekRange: String {
         var calendar = Calendar.current
-        calendar.firstWeekday = 2 // Monday start
+        calendar.firstWeekday = 2
         
-        if let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: Date())?.start,
-           let endOfWeek = calendar.date(byAdding: .day, value: 6, to: startOfWeek) {
-            return "\(startOfWeek.formatted(.dateTime.day().month())) - \(endOfWeek.formatted(.dateTime.day().month()))"
+        if let start = calendar.dateInterval(of: .weekOfYear, for: Date())?.start,
+           let end = calendar.date(byAdding: .day, value: 6, to: start) {
+            return "\(start.formatted(.dateTime.day().month())) - \(end.formatted(.dateTime.day().month()))"
         }
-        
         return ""
     }
     
@@ -64,147 +72,114 @@ struct ContentView: View {
         case "Monthly":
             return now.formatted(.dateTime.month().year())
         default:
-            fatalError("Unhandled period")
+            return ""
         }
     }
     
-    private var currencyCode: String {
-        Locale.current.currency?.identifier ?? "SGD"
-    }
-
-    /// Menu rows must not use `systemImage: ""` — empty names trigger "No symbol named ''" in the console.
-    @ViewBuilder
-    private func periodMenuRow(title: String, isSelected: Bool) -> some View {
-        HStack {
-            Text(title)
-            if isSelected {
-                Image(systemName: "checkmark")
-            }
-        }
-    }
-        
-    @State private var spending: Double = 140.10
-    @State private var selectedPeriod: String = "Daily"
-
     private var sortedBreakdownData: [CategorySpending] {
         data.sorted { $0.amount > $1.amount }
     }
-
+    
     private var breakdownTotal: Double {
         data.reduce(0) { $0 + $1.amount }
     }
-
+    
     private func categoryColor(_ name: String) -> Color {
         switch name {
-            case "Food": return Color(red: 1.0, green: 0.58, blue: 0.0)
-            case "Transport": return Color(red: 0.2, green: 0.55, blue: 0.95)
-            case "Shopping": return Color(red: 1.0, green: 0.8, blue: 0.0)
-            case "Others": return Color(red: 0.55, green: 0.38, blue: 0.92)
-            default: return .gray
+        case "Food": return .orange
+        case "Transport": return .blue
+        case "Shopping": return .yellow
+        case "Others": return .purple
+        default: return .gray
         }
     }
     
+    // MARK: - Spending Card
     var spendingCard: some View {
-        VStack (alignment: .leading, spacing: 12){
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("\(selectedPeriod) Spending")
                     .font(.headline)
+                
                 Spacer()
+                
                 Menu {
-                    Button { selectedPeriod = "Daily" } label: {
-                        periodMenuRow(title: "Daily", isSelected: selectedPeriod == "Daily")
-                    }
-                    Button { selectedPeriod = "Weekly" } label: {
-                        periodMenuRow(title: "Weekly", isSelected: selectedPeriod == "Weekly")
-                    }
-                    Button { selectedPeriod = "Monthly" } label: {
-                        periodMenuRow(title: "Monthly", isSelected: selectedPeriod == "Monthly")
-                    }
+                    Button("Daily") { selectedPeriod = "Daily" }
+                    Button("Weekly") { selectedPeriod = "Weekly" }
+                    Button("Monthly") { selectedPeriod = "Monthly" }
                 } label: {
                     Image(systemName: "ellipsis")
-                        .foregroundColor(.gray)
                         .foregroundStyle(.secondary)
                 }
             }
             
             Text(formattedDate)
-                .font(.body)
-                .fontWeight(.regular)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
             
-            HStack (alignment: .bottom) {
+            HStack(alignment: .bottom) {
                 Text(spending, format: .currency(code: currencyCode))
                     .font(.system(size: 40, weight: .bold, design: .rounded))
+                
                 Spacer()
-                Chip(label: "15%", color: Color.green, systemImage: "arrowtriangle.down.fill")
+                
+                Chip(label: "15%", color: .green, systemImage: "arrowtriangle.down.fill")
             }
-            
         }
         .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 22))
         .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
     }
     
-    var monthlyBreakdownCard : some View {
-        // TODO: add a multiselect drop down to chooose up to 3 categories, the rest is others
+    // MARK: - Breakdown Card
+    var monthlyBreakdownCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Monthly Breakdown").font(.headline)
-
-            HStack(alignment: .center, spacing: 20) {
+            Text("Monthly Breakdown")
+                .font(.headline)
+            
+            HStack(spacing: 20) {
                 ZStack {
                     Chart(sortedBreakdownData) { item in
                         SectorMark(
                             angle: .value("Amount", item.amount),
-                            innerRadius: .ratio(0.65),
-                            angularInset: 3
+                            innerRadius: .ratio(0.65)
                         )
-                        .cornerRadius(6)
                         .foregroundStyle(categoryColor(item.category))
                     }
-                    .chartLegend(.hidden)
-
-                    VStack(spacing: 2) {
+                    
+                    VStack {
                         Text(breakdownTotal, format: .currency(code: currencyCode))
-                            .font(.system(.title2, design: .rounded))
-                            .fontWeight(.bold)
+                            .font(.title2.bold())
                         Text("spent")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                }.frame(maxWidth: .infinity)
-
+                }
                 
                 VStack(alignment: .leading, spacing: 12) {
                     ForEach(sortedBreakdownData) { item in
-                        HStack(alignment: .center, spacing: 10) {
-                            RoundedRectangle(cornerRadius: 3, style: .continuous)
+                        HStack {
+                            RoundedRectangle(cornerRadius: 3)
                                 .fill(categoryColor(item.category))
                                 .frame(width: 10, height: 10)
                             
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading) {
                                 Text(item.category)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.primary)
-                                
                                 Text(item.amount, format: .currency(code: currencyCode))
-                                    .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
                         }
                     }
-                }.frame(alignment: .leading)
-                .padding(.trailing, 16)
+                }
             }
         }
         .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 22))
         .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
     }
     
+    // MARK: - Transactions
     struct Transaction: Identifiable {
         let id = UUID()
         let title: String
@@ -217,19 +192,20 @@ struct ContentView: View {
     let transactions = [
         Transaction(title: "luckin", date: "9 Mar 2026", amount: -32.01, icon: "fork.knife", color: .orange),
         Transaction(title: "mrt", date: "9 Mar 2026", amount: -15.05, icon: "tram.fill", color: .blue),
-        Transaction(title: "kirby", date: "8 Mar 2026", amount: -20.00, icon: "gift.fill", color: .yellow),
+        Transaction(title: "kirby", date: "8 Mar 2026", amount: -20.00, icon: "gift.fill", color: .yellow)
     ]
     
     var recentTransactions: some View {
-        
         VStack(alignment: .leading, spacing: 16) {
+            
+            // Header
             HStack {
-                Text("Recent Transaction")
+                Text("Recent Transactions")
                     .font(.headline)
+                
                 Spacer()
-                Button(action: {
-                    
-                }) {
+                
+                Button {} label: {
                     HStack(spacing: 4) {
                         Text("See All")
                         Image(systemName: "chevron.right")
@@ -237,84 +213,120 @@ struct ContentView: View {
                     .font(.subheadline)
                 }
             }
+            .padding(.horizontal, 16)
             
-            
+            // Card
             VStack(spacing: 0) {
                 ForEach(transactions.indices, id: \.self) { index in
-                    
-                    let transaction = transactions[index]
+                    let t = transactions[index]
                     
                     HStack(spacing: 12) {
                         ZStack {
                             Circle()
-                                .fill(transaction.color.opacity(0.2))
+                                .fill(t.color.opacity(0.2))
                                 .frame(width: 40, height: 40)
                             
-                            Image(systemName: transaction.icon)
-                                .foregroundColor(transaction.color)
-                                .font(.system(size: 16, weight: .semibold))
+                            Image(systemName: t.icon)
+                                .foregroundColor(t.color)
                         }
                         
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(transaction.title)
-                            Text(transaction.date)
+                        VStack(alignment: .leading) {
+                            Text(t.title)
+                            Text(t.date)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                         
                         Spacer()
                         
-                        Text(String(format: "%.2f", transaction.amount))
+                        Text(t.amount, format: .currency(code: currencyCode))
                             .foregroundStyle(.red)
                     }
                     .padding()
                     
-                    // Divider (not after last item)
                     if index != transactions.count - 1 {
-                        Divider()
-                            .padding(.leading, 60)
+                        Divider().padding(.leading, 60)
                     }
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .background(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 22))
             .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
         }
     }
-        
     
+    // MARK: - Header
     var header: some View {
-        HStack(alignment: .center) {
+        HStack {
             Text("Summary")
-                .font(.title)
-                .fontWeight(.bold)
+                .font(.title.bold())
+            
             Spacer()
+            
             ZStack {
-                Circle().fill(Color.blue)
+                Circle().fill(.blue)
                 Image(systemName: "person.fill")
                     .foregroundColor(.white)
             }
             .frame(width: 40, height: 40)
         }
-        .padding()
-        .background(Color.white)
-
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(.white)
     }
     
+    // MARK: - Body
     var body: some View {
-        header
-        ScrollView {
-            VStack {
-                spendingCard
-                monthlyBreakdownCard
-                recentTransactions
-            }.frame(maxWidth: .infinity, maxHeight: .infinity)
+        VStack(spacing: 0) {
+            header
+            
+            ScrollView {
+                VStack(spacing: 20) {
+                    spendingCard
+                    monthlyBreakdownCard
+                    recentTransactions
+                        .padding(.top, 8)
+                }
                 .padding()
-        }.background(Color(red: 0.95, green: 0.95, blue: 0.97).ignoresSafeArea())
+            }
+        }
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
     }
 }
 
+// MARK: - TabView
+struct MainView: View {
+    var body: some View {
+        TabView {
+            
+            ContentView()
+                .tabItem {
+                    Image(systemName: "house.fill")
+                    Text("Home")
+                }
+            
+            Text("Stats")
+                .tabItem {
+                    Image(systemName: "chart.pie.fill")
+                    Text("Stats")
+                }
+            
+            Text("Budget")
+                .tabItem {
+                    Image(systemName: "wallet.pass.fill")
+                    Text("Budget")
+                }
+            
+            Text("More")
+                .tabItem {
+                    Image(systemName: "ellipsis.circle.fill")
+                    Text("More")
+                }
+        }
+    }
+}
+
+// MARK: - Preview
 #Preview {
-    ContentView()
+    MainView()
 }
