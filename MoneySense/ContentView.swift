@@ -142,8 +142,10 @@ struct ContentView: View {
                     Chart(sortedBreakdownData) { item in
                         SectorMark(
                             angle: .value("Amount", item.amount),
-                            innerRadius: .ratio(0.65)
+                            innerRadius: .ratio(0.65),
+                            angularInset: 3
                         )
+                        .cornerRadius(6)
                         .foregroundStyle(categoryColor(item.category))
                     }
                     
