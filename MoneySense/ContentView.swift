@@ -297,33 +297,64 @@ struct ContentView: View {
 }
 
 // MARK: - TabView
+import SwiftUI
+//import SwiftUIIntrospect
+
 struct MainView: View {
+//    @State private var selectedTab = 0
+    @State private var showAddSheet = false
+    @State private var addButtonScale: CGFloat = 1.0
+
+    private let accentBlue = Color(red: 0.0, green: 0.48, blue: 1.0)
+    enum Tabs {
+        case home, stats, budget, more, add, search
+    }
+    @State var selectedTab: Tabs = .home
     var body: some View {
-        TabView {
-            
-            ContentView()
-                .tabItem {
-                    Image(systemName: "house.fill")
-                    Text("Home")
+        ZStack {
+            TabView(selection: $selectedTab) {
+                Tab("Home", systemImage: "house.fill", value: .home) {
+                    ContentView()
                 }
-            
-            Text("Stats")
-                .tabItem {
-                    Image(systemName: "chart.pie.fill")
+                
+                Tab("Stats", systemImage: "chart.pie.fill", value: .stats) {
                     Text("Stats")
                 }
-            
-            Text("Budget")
-                .tabItem {
-                    Image(systemName: "wallet.pass.fill")
+                
+                Tab("Budget", systemImage: "wallet.pass.fill", value: .budget) {
                     Text("Budget")
                 }
-            
-            Text("More")
-                .tabItem {
-                    Image(systemName: "ellipsis.circle.fill")
+                
+                Tab("More", systemImage: "ellipsis.circle.fill", value: .more) {
                     Text("More")
                 }
+                
+                Tab("Add", systemImage: "plus", value: .add, role: .search) {
+                        
+                }
+                
+            }
+            .onChange(of: selectedTab) { oldValue, newValue in
+                if newValue == .add {
+                    showAddSheet = true
+                    selectedTab = oldValue
+                }
+            }
+            .sheet(isPresented: $showAddSheet) {
+                SheetView()
+            }
+        }
+    }
+}
+
+struct SheetView: View {
+    var body: some View {
+        NavigationStack {
+            VStack (spacing: 20) {
+                Image(systemName: "star.fill")
+                    .font(.system(size: 60))
+                    .foregroundStyle(.yellow)
+            }
         }
     }
 }

@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		216F14BE2F85349600406F7E /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 216F14BD2F85349600406F7E /* SwiftUIIntrospect */; };
+		216F14C22F85349600406F7E /* SwiftUIIntrospect-Static in Frameworks */ = {isa = PBXBuildFile; productRef = 216F14C12F85349600406F7E /* SwiftUIIntrospect-Static */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		217785CA2F5DA3740035DF5C /* MoneySense.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoneySense.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +28,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				216F14BE2F85349600406F7E /* SwiftUIIntrospect in Frameworks */,
+				216F14C22F85349600406F7E /* SwiftUIIntrospect-Static in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +72,8 @@
 			);
 			name = MoneySense;
 			packageProductDependencies = (
+				216F14BD2F85349600406F7E /* SwiftUIIntrospect */,
+				216F14C12F85349600406F7E /* SwiftUIIntrospect-Static */,
 			);
 			productName = MoneySense;
 			productReference = 217785CA2F5DA3740035DF5C /* MoneySense.app */;
@@ -94,6 +103,9 @@
 			);
 			mainGroup = 217785C12F5DA3740035DF5C;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				216F14BC2F85349600406F7E /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 217785CB2F5DA3740035DF5C /* Products */;
 			projectDirPath = "";
@@ -328,6 +340,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		216F14BC2F85349600406F7E /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 26.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		216F14BD2F85349600406F7E /* SwiftUIIntrospect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 216F14BC2F85349600406F7E /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
+			productName = SwiftUIIntrospect;
+		};
+		216F14C12F85349600406F7E /* SwiftUIIntrospect-Static */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 216F14BC2F85349600406F7E /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
+			productName = "SwiftUIIntrospect-Static";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 217785C22F5DA3740035DF5C /* Project object */;
 }
