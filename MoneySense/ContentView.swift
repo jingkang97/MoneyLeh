@@ -332,7 +332,6 @@ struct MainView: View {
                 Tab("Add", systemImage: "plus", value: .add, role: .search) {
                         
                 }
-                
             }
             .onChange(of: selectedTab) { oldValue, newValue in
                 if newValue == .add {
@@ -341,16 +340,46 @@ struct MainView: View {
                 }
             }
             .sheet(isPresented: $showAddSheet) {
-                SheetView()
+                AddTransactionView()
             }
         }
     }
 }
 
-struct SheetView: View {
+struct AddTransactionView: View {
+    @Environment(\.dismiss) private var dismiss
     var body: some View {
         NavigationStack {
             VStack (spacing: 20) {
+                HStack(spacing: 20) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(.gray)
+                            .frame(width: 50, height: 50)
+                            .background(Color(.systemGray5))
+                            .clipShape(Circle())
+                    }
+                    Spacer()
+                    Text("Add Transaction")
+                        .font(.headline)
+
+                    Spacer()
+                    Button {
+                        
+                        dismiss()
+                    } label: {
+                        Image(systemName: "arrow.up")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: 50, height: 50)
+                            .background(Color(.systemBlue))
+                            .clipShape(Circle())
+                    }
+                }.padding(24)
+                Spacer()
                 Image(systemName: "star.fill")
                     .font(.system(size: 60))
                     .foregroundStyle(.yellow)
