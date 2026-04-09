@@ -348,41 +348,102 @@ struct MainView: View {
 
 struct AddTransactionView: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var amountText: String = ""
+    
+    @State private var amountInCents: Int = 0
+    
+    var formattedAmount: String {
+        let amount = Double(amountInCents) / 100.00
+        return amount.formatted(.currency(code: Locale.current.currency?.identifier ?? "SGD"))
+    }
+    @FocusState private var isAmountFocused: Bool
+    
+    func addDigit(_ digit: Int) {
+        guard amountInCents < 1_000_000_000 else { return }
+        amountInCents = amountInCents * 10 + digit
+    }
+    
+    func deleteDigit() {
+        amountInCents = amountInCents / 10
+    }
+    
+    var header: some View {
+        HStack {
+            Button { dismiss() } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.gray)
+                    .frame(width: 44, height: 44)
+                    .background(Color(.systemGray5))
+                    .clipShape(Circle())
+            }
+            Spacer()
+            Text("Add Transaction")
+                .font(.headline)
+            Spacer()
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "arrow.up")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 44, height: 44)
+                    .background(Color(.systemBlue))
+                    .clipShape(Circle())
+            }
+        }.padding()
+    }
+    
+    func filterAmount(_ value: String) -> String {
+        // allow digits + dot
+        var filtered = value.filter { "0123456789.".contains($0) }
+        
+        // allow only ONE decimal point
+        let parts = filtered.split(separator: ".", omittingEmptySubsequences: false)
+        if parts.count > 2 {
+            filtered = parts.prefix(2).joined(separator: ".")
+        }
+        
+        return filtered
+    }
+    
+    
+    
+    var amountInput: some View {
+        Text(formattedAmount)
+                    .font(.system(size: 48, weight: .bold))
+                    .frame(maxWidth: .infinity)
+                
+//        VStack(spacing: 12) {
+//            TextField("0.00", text: $amountText)
+//                .keyboardType(.decimalPad)
+//                .focused($isAmountFocused)
+//                .multilineTextAlignment(.center)
+//                .font(.system(size: 48, weight: .bold))
+//                .onChange(of: amountText) { _, newValue in
+//                    let filtered = filterAmount(newValue)
+//                    // only update if different → prevents loop
+//                    if filtered != newValue {
+//                        amountText = filtered
+//                    }
+//                }
+//        }
+//        .padding()
+//        .onAppear {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//                isAmountFocused = true
+//            }
+//        }.onTapGesture { isAmountFocused = false }
+    }
+    
+    
     var body: some View {
         NavigationStack {
-            VStack (spacing: 20) {
-                HStack(spacing: 20) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundStyle(.gray)
-                            .frame(width: 50, height: 50)
-                            .background(Color(.systemGray5))
-                            .clipShape(Circle())
-                    }
-                    Spacer()
-                    Text("Add Transaction")
-                        .font(.headline)
-
-                    Spacer()
-                    Button {
-                        
-                        dismiss()
-                    } label: {
-                        Image(systemName: "arrow.up")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundStyle(.white)
-                            .frame(width: 50, height: 50)
-                            .background(Color(.systemBlue))
-                            .clipShape(Circle())
-                    }
-                }.padding(24)
-                Spacer()
-                Image(systemName: "star.fill")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.yellow)
+            ScrollView {
+                VStack(spacing: 0) {
+                    header
+                    amountInput
+                }
             }
         }
     }
