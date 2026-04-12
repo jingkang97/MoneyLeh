@@ -5,7 +5,7 @@
 
 import SwiftUI
 import Charts
-
+import PhotosUI
  
 // MARK: - Chip
 struct Chip: View {
@@ -280,9 +280,7 @@ struct ContentView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
                     spendingCard
@@ -291,18 +289,23 @@ struct ContentView: View {
                         .padding(.top, 8)
                 }
                 .padding()
-            }
+            }.navigationTitle("Summary")
+                .toolbarTitleDisplayMode(.inlineLarge)
+                .toolbar {
+                    ZStack {
+                        Circle().fill(.blue)
+                        Image(systemName: "person.fill")
+                            .foregroundColor(.white)
+                            .font(.system(size: 16))
+                        }
+                        .frame(width: 34, height: 34)
+                }
         }
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
     }
 }
 
 // MARK: - TabView
-import SwiftUI
-//import SwiftUIIntrospect
-
 struct MainView: View {
-//    @State private var selectedTab = 0
     @State private var showAddSheet = false
     @State private var addButtonScale: CGFloat = 1.0
 
@@ -347,25 +350,96 @@ struct MainView: View {
     }
 }
 
+struct ExpenseFormView: View {
+    @Binding var description: String
+    @Binding var date: Date
+    @Binding var source: String
+    @Binding var category: String
+    @Binding var notes: String
+    @Binding var receiptItem: PhotosPickerItem?
+    
+    let sources: [String]
+    let categories: [String]
+    
+    var body: some View {
+        Form {
+            Section {
+                LabeledContent("Description") {
+                    TextField("", text: $description)
+                        .multilineTextAlignment(.trailing)
+                }
+                DatePicker("Date", selection: $date,
+                           displayedComponents: [.date])
+                Picker("Source", selection: $source) {
+                    ForEach(sources, id: \.self) {
+                        Text($0).tag($0)
+                    }
+                    .pickerStyle(.navigationLink)
+                }
+                Picker("Category", selection: $category) {
+                    ForEach(categories, id: \.self) {
+                        Text($0).tag($0)
+                    }
+                    .pickerStyle(.navigationLink)
+                }
+                
+                Section("Notes") {
+                    TextField("Add details...", text: $notes, axis: .vertical)
+                        .lineLimit(3...6)
+                }
+            }
+            
+            Section {
+                PhotosPicker(selection: $receiptItem, matching: .images) {
+                    VStack(spacing: 6) {
+                        Image(systemName: "plus")
+                            .font(.title3)
+                        Text("Add Receipt")
+                            .font(.subheadline)
+                    }
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 15)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(style: StrokeStyle(lineWidth: 1.5, dash: [6]))
+                            .foregroundStyle(.secondary)
+                    )
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 2, leading: 8, bottom: 8, trailing: 8))
+            }
+        }
+        .scrollDisabled(true)
+    }
+}
+
+
+
 struct AddTransactionView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var amountInCents: Int = 0
     @State private var rawInput: String = ""
     @FocusState private var isFocused: Bool
     
+    // Form state
+    @State private var description: String = ""
+    @State private var date: Date = Date()
+    @State private var source: String = "CitiBank" // get from DB
+    @State private var category: String = "Food & Drink"
+    @State private var notes: String = ""
+    @State private var receiptItem: PhotosPickerItem?
+    
+    let sources = ["CitiBank", "DBS", "Cash"] // can add more next time
+    let categories = ["Food & Drink", "Transport", "Shopping"] // can add more next time
+
+    private var hasNoInput: Bool {
+        amountInCents == 0
+    }
+    
     var formattedAmount: String {
         let amount = Double(amountInCents) / 100.00
         return amount.formatted(.currency(code: Locale.current.currency?.identifier ?? "SGD"))
-    }
-    @FocusState private var isAmountFocused: Bool
-    
-    func addDigit(_ digit: Int) {
-        guard amountInCents < 1_000_000_000 else { return }
-        amountInCents = amountInCents * 10 + digit
-    }
-    
-    func deleteDigit() {
-        amountInCents /= 10
     }
     
     var header: some View {
@@ -389,9 +463,11 @@ struct AddTransactionView: View {
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(width: 44, height: 44)
-                    .background(Color(.systemBlue))
+                    .background(hasNoInput ? Color(.systemGray4) : Color(.systemBlue))
                     .clipShape(Circle())
+                    
             }
+            .disabled(hasNoInput)
         }.padding()
     }
     
@@ -401,7 +477,7 @@ struct AddTransactionView: View {
             Text(formattedAmount)
                 .font(.system(size: 48, weight: .bold))
                 .frame(maxWidth: .infinity)
-                .foregroundStyle(amountInCents == 0 ? .secondary : .primary)
+                .foregroundStyle(hasNoInput ? .secondary : .primary)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     isFocused = true
@@ -433,14 +509,25 @@ struct AddTransactionView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
+//            ScrollView {
                 VStack(spacing: 0) {
                     header
                     amountInput
                     Spacer()
+                    // Expense form view
+                    ExpenseFormView(
+                        description: $description,
+                        date: $date,
+                        source: $source,
+                        category: $category,
+                        notes: $notes,
+                        receiptItem: $receiptItem,
+                        sources: sources,
+                        categories: categories
+                    )
                 }
+                .background(Color(.systemGray6).ignoresSafeArea())
                 .task {
-                    try? await Task.sleep(nanoseconds: 150_000_000)
                     isFocused = true
                 }
                 .toolbar {
@@ -456,7 +543,8 @@ struct AddTransactionView: View {
                         .padding(.horizontal)
                     }
                 }
-            }.scrollDismissesKeyboard(.immediately)
+//            }
+//        .scrollDismissesKeyboard(.immediately)
         }
     }
 }
