@@ -371,7 +371,7 @@ struct ExpenseFormView: View {
     var body: some View {
         Form {
             Section {
-                LabeledContent("Description") {
+                LabeledContent("Description *") {
                     TextField("", text: $description)
                         .multilineTextAlignment(.trailing)
                 }
@@ -437,8 +437,14 @@ struct AddTransactionView: View {
     let sources = ["CitiBank", "DBS", "Cash"] // can add more next time
     let categories = ["Food & Drink", "Transport", "Shopping"] // can add more next time
 
-    private var hasNoInput: Bool {
+    private var hasNoAmountInput: Bool {
         amountInCents == 0
+    }
+    private var hasNoDescriptionInput: Bool {
+        description.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+    private var hasNoInput: Bool {
+        hasNoAmountInput || hasNoDescriptionInput
     }
     
     var formattedAmount: String {
@@ -481,7 +487,7 @@ struct AddTransactionView: View {
             Text(formattedAmount)
                 .font(.system(size: 48, weight: .bold))
                 .frame(maxWidth: .infinity)
-                .foregroundStyle(hasNoInput ? .secondary : .primary)
+                .foregroundStyle(hasNoAmountInput ? .secondary : .primary)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     isFocused = true
