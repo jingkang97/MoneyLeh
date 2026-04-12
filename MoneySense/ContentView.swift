@@ -350,6 +350,13 @@ struct MainView: View {
     }
 }
 
+extension UIApplication {
+    func endEditing() {
+        sendAction(#selector(UIResponder.resignFirstResponder),
+                   to: nil, from: nil, for: nil)
+    }
+}
+
 struct ExpenseFormView: View {
     @Binding var description: String
     @Binding var date: Date
@@ -374,15 +381,12 @@ struct ExpenseFormView: View {
                     ForEach(sources, id: \.self) {
                         Text($0).tag($0)
                     }
-                    .pickerStyle(.navigationLink)
                 }
                 Picker("Category", selection: $category) {
                     ForEach(categories, id: \.self) {
                         Text($0).tag($0)
                     }
-                    .pickerStyle(.navigationLink)
                 }
-                
                 Section("Notes") {
                     TextField("Add details...", text: $notes, axis: .vertical)
                         .lineLimit(3...6)
@@ -502,49 +506,42 @@ struct AddTransactionView: View {
         } else if let value = Int(digits) {
             amountInCents = value
         }
-
-        // Normalise rawInput to just digits so future diffs are accurate
         rawInput = digits
     }
     
     var body: some View {
         NavigationStack {
-//            ScrollView {
-                VStack(spacing: 0) {
-                    header
-                    amountInput
-                    Spacer()
-                    // Expense form view
-                    ExpenseFormView(
-                        description: $description,
-                        date: $date,
-                        source: $source,
-                        category: $category,
-                        notes: $notes,
-                        receiptItem: $receiptItem,
-                        sources: sources,
-                        categories: categories
-                    )
-                }
-                .background(Color(.systemGray6).ignoresSafeArea())
-                .task {
-                    isFocused = true
-                }
-                .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        HStack {
-                            Spacer()
-                            Button("Done") {
-                                isFocused = false
-                            }
-                            .foregroundStyle(.blue)
-                            .font(.system(size: 17, weight: .semibold))
+            VStack(spacing: 0) {
+                header
+                amountInput
+                ExpenseFormView(
+                    description: $description,
+                    date: $date,
+                    source: $source,
+                    category: $category,
+                    notes: $notes,
+                    receiptItem: $receiptItem,
+                    sources: sources,
+                    categories: categories
+                )
+            }
+            .background(Color(.systemGray6).ignoresSafeArea())
+            .task {
+                isFocused = true
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    HStack {
+                        Spacer()
+                        Button("Done") {
+                            UIApplication.shared.endEditing()
                         }
-                        .padding(.horizontal)
+                        .foregroundStyle(.blue)
+                        .font(.system(size: 17, weight: .semibold))
                     }
+                    .padding(.horizontal)
                 }
-//            }
-//        .scrollDismissesKeyboard(.immediately)
+            }
         }
     }
 }
