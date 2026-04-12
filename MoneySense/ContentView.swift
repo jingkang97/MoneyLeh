@@ -6,6 +6,7 @@
 import SwiftUI
 import Charts
 
+ 
 // MARK: - Chip
 struct Chip: View {
     let label: String
@@ -348,9 +349,9 @@ struct MainView: View {
 
 struct AddTransactionView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var amountText: String = ""
-    
     @State private var amountInCents: Int = 0
+    @State private var rawInput: String = ""
+    @FocusState private var isFocused: Bool
     
     var formattedAmount: String {
         let amount = Double(amountInCents) / 100.00
@@ -364,7 +365,7 @@ struct AddTransactionView: View {
     }
     
     func deleteDigit() {
-        amountInCents = amountInCents / 10
+        amountInCents /= 10
     }
     
     var header: some View {
@@ -394,48 +395,41 @@ struct AddTransactionView: View {
         }.padding()
     }
     
-    func filterAmount(_ value: String) -> String {
-        // allow digits + dot
-        var filtered = value.filter { "0123456789.".contains($0) }
-        
-        // allow only ONE decimal point
-        let parts = filtered.split(separator: ".", omittingEmptySubsequences: false)
-        if parts.count > 2 {
-            filtered = parts.prefix(2).joined(separator: ".")
-        }
-        
-        return filtered
-    }
-    
-    
-    
     var amountInput: some View {
-        Text(formattedAmount)
-                    .font(.system(size: 48, weight: .bold))
-                    .frame(maxWidth: .infinity)
-                
-//        VStack(spacing: 12) {
-//            TextField("0.00", text: $amountText)
-//                .keyboardType(.decimalPad)
-//                .focused($isAmountFocused)
-//                .multilineTextAlignment(.center)
-//                .font(.system(size: 48, weight: .bold))
-//                .onChange(of: amountText) { _, newValue in
-//                    let filtered = filterAmount(newValue)
-//                    // only update if different → prevents loop
-//                    if filtered != newValue {
-//                        amountText = filtered
-//                    }
-//                }
-//        }
-//        .padding()
-//        .onAppear {
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-//                isAmountFocused = true
-//            }
-//        }.onTapGesture { isAmountFocused = false }
+        ZStack {
+            // Display
+            Text(formattedAmount)
+                .font(.system(size: 48, weight: .bold))
+                .frame(maxWidth: .infinity)
+                .foregroundStyle(amountInCents == 0 ? .secondary : .primary)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    isFocused = true
+                }
+            
+            // Invisible Text field to summon keyboard
+            TextField("", text: $rawInput)
+                .keyboardType(.numberPad)
+                .focused($isFocused)
+                .opacity(0.01)
+                .onChange(of: rawInput) { oldValue, newValue in
+                    handleInput(newValue)
+                }
+        }
     }
     
+    func handleInput(_ newValue: String) {
+        let digits = newValue.filter { $0.isNumber }
+
+        if digits.isEmpty {
+            amountInCents = 0
+        } else if let value = Int(digits) {
+            amountInCents = value
+        }
+
+        // Normalise rawInput to just digits so future diffs are accurate
+        rawInput = digits
+    }
     
     var body: some View {
         NavigationStack {
@@ -443,8 +437,26 @@ struct AddTransactionView: View {
                 VStack(spacing: 0) {
                     header
                     amountInput
+                    Spacer()
                 }
-            }
+                .task {
+                    try? await Task.sleep(nanoseconds: 150_000_000)
+                    isFocused = true
+                }
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        HStack {
+                            Spacer()
+                            Button("Done") {
+                                isFocused = false
+                            }
+                            .foregroundStyle(.blue)
+                            .font(.system(size: 17, weight: .semibold))
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+            }.scrollDismissesKeyboard(.immediately)
         }
     }
 }
