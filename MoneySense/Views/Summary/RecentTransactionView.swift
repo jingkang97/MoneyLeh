@@ -29,8 +29,7 @@ struct RecentTransactionView: View {
             }
             .padding(.horizontal, 16)
             
-            // Card
-            VStack(spacing: 0) {
+            Card(spacing: 0, padding: 0) {
                 ForEach(transactions.indices, id: \.self) { index in
                     let t = transactions[index]
                     
@@ -63,9 +62,6 @@ struct RecentTransactionView: View {
                     }
                 }
             }
-            .background(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 22))
-            .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
         }
     }
 }

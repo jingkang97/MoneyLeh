@@ -14,7 +14,7 @@ struct SpendingCardView: View {
     let onPeriodChange: (String) -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        Card {
             HStack {
                 Text("\(selectedPeriod) Spending")
                     .font(.headline)
@@ -38,9 +38,5 @@ struct SpendingCardView: View {
                 Chip(label: "15%", color: .green, systemImage: "arrowtriangle.down.fill")
             }
         }
-        .padding(20)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
     }
 }

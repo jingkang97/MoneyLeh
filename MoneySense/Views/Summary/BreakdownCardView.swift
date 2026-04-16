@@ -14,7 +14,7 @@ struct BreakdownCardView: View {
     let currencyCode: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        Card {
             Text("Monthly Breakdown")
                 .font(.headline)
             
@@ -58,9 +58,5 @@ struct BreakdownCardView: View {
                 }
             }
         }
-        .padding(20)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22))
-        .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
     }
 }
