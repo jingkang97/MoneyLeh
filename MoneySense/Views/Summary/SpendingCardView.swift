@@ -8,7 +8,7 @@ import SwiftUI
 
 struct SpendingCardView: View {
     let spending: Double
-    let selectedPeriod: String
+    @Binding var selectedPeriod: String
     let formattedDate: String
     let currencyCode: String
     let onPeriodChange: (String) -> Void
@@ -19,14 +19,7 @@ struct SpendingCardView: View {
                 Text("\(selectedPeriod) Spending")
                     .font(.headline)
                 Spacer()
-                Menu {
-                    Button("Daily") { onPeriodChange("Daily") }
-                    Button("Weekly") { onPeriodChange("Weekly") }
-                    Button("Monthly") { onPeriodChange("Monthly") }
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .foregroundColor(.secondary)
-                }
+                PeriodPicker(selectedPeriod: $selectedPeriod)
             }
             Text(formattedDate)
                 .foregroundStyle(.secondary)

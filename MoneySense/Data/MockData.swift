@@ -20,4 +20,8 @@ enum MockData {
         Transaction(title: "mrt", date: "9 Mar 2026", amount: -15.05, icon: "tram.fill", color: .blue),
         Transaction(title: "kirby", date: "8 Mar 2026", amount: -20.00, icon: "gift.fill", color: .yellow),
     ]
+    
+    static let sources = ["CitiBank", "DBS", "Cash"]
+    
+    static let categories = ["Food & Drink", "Transport", "Shopping"]
 }

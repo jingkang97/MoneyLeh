@@ -12,10 +12,6 @@ class SummaryViewModel {
     var spending: Double = 140.10
     var selectedPeriod: String = "Daily"
     
-    var currencyCode: String {
-        Locale.current.currency?.identifier ?? "SGD"
-    }
-    
     var weekRange: String {
         var calendar = Calendar.current
         calendar.firstWeekday = 2

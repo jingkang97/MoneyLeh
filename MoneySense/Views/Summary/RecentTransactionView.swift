@@ -31,32 +31,8 @@ struct RecentTransactionView: View {
             
             Card(spacing: 0, padding: 0) {
                 ForEach(transactions.indices, id: \.self) { index in
-                    let t = transactions[index]
-                    
-                    HStack(spacing: 12) {
-                        ZStack {
-                            Circle()
-                                .fill(t.color.opacity(0.2))
-                                .frame(width: 40, height: 40)
-                            
-                            Image(systemName: t.icon)
-                                .foregroundColor(t.color)
-                        }
-                        
-                        VStack(alignment: .leading) {
-                            Text(t.title)
-                            Text(t.date)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                        
-                        Spacer()
-                        
-                        Text(t.amount, format: .currency(code: currencyCode))
-                            .foregroundStyle(.red)
-                    }
-                    .padding()
-                    
+                    TransactionRowView(transaction: transactions[index], currencyCode: currencyCode)
+        
                     if index != transactions.count - 1 {
                         Divider().padding(.leading, 60)
                     }
