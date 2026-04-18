@@ -9,15 +9,40 @@
 /* Begin PBXBuildFile section */
 		216F14BE2F85349600406F7E /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 216F14BD2F85349600406F7E /* SwiftUIIntrospect */; };
 		216F14C22F85349600406F7E /* SwiftUIIntrospect-Static in Frameworks */ = {isa = PBXBuildFile; productRef = 216F14C12F85349600406F7E /* SwiftUIIntrospect-Static */; };
+		21C4F3902F9292E500EC68F2 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 21C4F38F2F9292E500EC68F2 /* Supabase */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		217785CA2F5DA3740035DF5C /* MoneySense.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoneySense.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		21C4F3972F92947C00EC68F2 /* Exceptions for "MoneySense" folder in "MoneySense" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Config.xcconfig,
+			);
+			target = 217785C92F5DA3740035DF5C /* MoneySense */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		21C4F3982F92947C00EC68F2 /* Exceptions for "MoneySense" folder in "Compile Sources" phase from "MoneySense" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 217785C62F5DA3740035DF5C /* Sources */;
+			membershipExceptions = (
+				Config.xcconfig,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		217785CC2F5DA3740035DF5C /* MoneySense */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				21C4F3972F92947C00EC68F2 /* Exceptions for "MoneySense" folder in "MoneySense" target */,
+				21C4F3982F92947C00EC68F2 /* Exceptions for "MoneySense" folder in "Compile Sources" phase from "MoneySense" target */,
+			);
 			path = MoneySense;
 			sourceTree = "<group>";
 		};
@@ -30,6 +55,7 @@
 			files = (
 				216F14BE2F85349600406F7E /* SwiftUIIntrospect in Frameworks */,
 				216F14C22F85349600406F7E /* SwiftUIIntrospect-Static in Frameworks */,
+				21C4F3902F9292E500EC68F2 /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -40,6 +66,7 @@
 			isa = PBXGroup;
 			children = (
 				217785CC2F5DA3740035DF5C /* MoneySense */,
+				21C4F38E2F9292E500EC68F2 /* Frameworks */,
 				217785CB2F5DA3740035DF5C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -50,6 +77,13 @@
 				217785CA2F5DA3740035DF5C /* MoneySense.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		21C4F38E2F9292E500EC68F2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -74,6 +108,7 @@
 			packageProductDependencies = (
 				216F14BD2F85349600406F7E /* SwiftUIIntrospect */,
 				216F14C12F85349600406F7E /* SwiftUIIntrospect-Static */,
+				21C4F38F2F9292E500EC68F2 /* Supabase */,
 			);
 			productName = MoneySense;
 			productReference = 217785CA2F5DA3740035DF5C /* MoneySense.app */;
@@ -105,6 +140,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				216F14BC2F85349600406F7E /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
+				21C4F3892F92893E00EC68F2 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 217785CB2F5DA3740035DF5C /* Products */;
@@ -352,6 +388,14 @@
 				minimumVersion = 26.0.1;
 			};
 		};
+		21C4F3892F92893E00EC68F2 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -364,6 +408,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 216F14BC2F85349600406F7E /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
 			productName = "SwiftUIIntrospect-Static";
+		};
+		21C4F38F2F9292E500EC68F2 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 21C4F3892F92893E00EC68F2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
