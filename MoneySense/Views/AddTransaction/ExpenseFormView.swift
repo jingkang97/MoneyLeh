@@ -15,6 +15,7 @@ struct ExpenseFormView: View {
     @Binding var category: String
     @Binding var notes: String
     @Binding var receiptItem: PhotosPickerItem?
+    var focusedField: FocusState<Field?>.Binding
     
     let sources: [String]
     let categories: [String]
@@ -25,6 +26,7 @@ struct ExpenseFormView: View {
                 LabeledContent("Description *") {
                     TextField("", text: $description)
                         .multilineTextAlignment(.trailing)
+                        .focused(focusedField, equals: .description)
                 }
                 DatePicker("Date", selection: $date, displayedComponents: [.date])
                 Picker("Source", selection: $source) {
@@ -37,10 +39,11 @@ struct ExpenseFormView: View {
                         Text($0).tag($0)
                     }
                 }
-                Section("Notes") {
-                    TextField("Add details...", text: $notes, axis: .vertical)
-                        .lineLimit(3...6)
-                }
+                
+                TextField("Add notes...", text: $notes, axis: .vertical)
+                    .lineLimit(3...6)
+                    .focused(focusedField, equals: .notes)
+                
             }
             
             Section {

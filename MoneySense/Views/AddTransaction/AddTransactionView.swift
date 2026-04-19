@@ -11,8 +11,9 @@ import PhotosUI
 struct AddTransactionView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = AddTransactionViewModel()
-    @FocusState private var isFocused: Bool
-    
+//    @FocusState private var isFocused: Bool
+    @FocusState private var focusedField: Field?  // ← only one FocusState
+
     var header: some View {
         HStack {
             Button { dismiss() } label: {
@@ -27,15 +28,26 @@ struct AddTransactionView: View {
             Text("Add Transaction")
                 .font(.headline)
             Spacer()
-            Button { dismiss() } label: {
-                Image(systemName: "arrow.up")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 44, height: 44)
-                    .background(viewModel.hasNoInput ? Color(.systemGray4) : Color(.systemBlue))
-                    .clipShape(Circle())
+            Button {
+                Task {
+                    await viewModel.submit()
+                }
+            } label: {
+                Group {
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .tint(.white)
+                    } else {
+                        Image(systemName: "arrow.up")
+                            .font(.system(size: 18, weight: .semibold))
+                    }
+                }
+                .foregroundStyle(.white)
+                .frame(width: 44, height: 44)
+                .background(viewModel.hasNoInput ? Color(.systemGray4) : Color(.systemBlue))
+                .clipShape(Circle())
             }
-            .disabled(viewModel.hasNoInput)
+            .disabled(viewModel.hasNoInput || viewModel.isLoading)
         }
         .padding()
     }
@@ -48,12 +60,14 @@ struct AddTransactionView: View {
                 .foregroundStyle(viewModel.hasNoAmountInput ? .secondary : .primary)
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    isFocused = true
+//                    isFocused = true
+                    focusedField = .amount  // ← changed
                 }
             
             TextField("", text: $viewModel.rawInput)
                 .keyboardType(.numberPad)
-                .focused($isFocused)
+//                .focused($isFocused)
+                .focused($focusedField, equals: .amount)  // ← changed
                 .opacity(0.01)
                 .onChange(of: viewModel.rawInput) { _, newValue in viewModel.handleInput(newValue)}
         }
@@ -71,24 +85,58 @@ struct AddTransactionView: View {
                     category: $viewModel.category,
                     notes: $viewModel.notes,
                     receiptItem: $viewModel.receiptItem,
+                    focusedField: $focusedField,  // ← fixed capitalisation
                     sources: MockData.sources,
-                    categories: MockData.categories
+                    categories: MockData.categories,
                 )
             }
             .background(Color(.systemGray6).ignoresSafeArea())
-            .task { isFocused = true }
+//            .task { isFocused = true }
+            .task {
+                try? await Task.sleep(for: .milliseconds(300))
+                focusedField = .amount
+            }
+            .onChange(of: viewModel.didSubmitSuccessfully) { _, success in
+                if success { dismiss() }
+            }
+            .alert("Error", isPresented: .constant(viewModel.error != nil)) {
+                Button("OK") { viewModel.error = nil }
+            } message: {
+                Text(viewModel.error ?? "")
+            }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
-                    HStack {
-                        Spacer()
-                        Button("Done") { UIApplication.shared.endEditing() }
-                            .foregroundStyle(.blue)
+                    Button {
+                        switch focusedField {
+                        case .description: focusedField = .amount
+                        case .notes: focusedField = .description
+                        default: break
+                        }
+                    } label: {
+                        Image(systemName: "chevron.up")
+                    }
+                    
+                    Button {
+                        switch focusedField {
+                        case .amount: focusedField = .description
+                        case .description: focusedField = .notes
+                        default: break
+                        }
+                    } label: {
+                        Image(systemName: "chevron.down")
+                    }
+                    
+                    Spacer()
+                    
+                    Button {
+                        focusedField = nil
+                    } label: {
+                        Image(systemName: "checkmark")
                             .font(.system(size: 17, weight: .semibold))
                     }
-                    .padding(.horizontal)
+                    .foregroundStyle(.blue)
                 }
             }
-            
         }
     }
 }

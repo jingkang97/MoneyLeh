@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TransactionRowView: View {
-    let transaction: Transaction
+    let transaction: RecentTransaction
     let currencyCode: String
     
     var body: some View {

@@ -15,10 +15,10 @@ enum MockData {
         .init(category: "Others", amount: 100),
     ]
     
-    static let transactions: [Transaction] = [
-        Transaction(title: "luckin", date: "9 Mar 2026", amount: -32.01, icon: "fork.knife", color: .orange),
-        Transaction(title: "mrt", date: "9 Mar 2026", amount: -15.05, icon: "tram.fill", color: .blue),
-        Transaction(title: "kirby", date: "8 Mar 2026", amount: -20.00, icon: "gift.fill", color: .yellow),
+    static let transactions: [RecentTransaction] = [
+        RecentTransaction(title: "luckin", date: "9 Mar 2026", amount: -32.01, icon: "fork.knife", color: .orange),
+        RecentTransaction(title: "mrt", date: "9 Mar 2026", amount: -15.05, icon: "tram.fill", color: .blue),
+        RecentTransaction(title: "kirby", date: "8 Mar 2026", amount: -20.00, icon: "gift.fill", color: .yellow),
     ]
     
     static let sources = ["CitiBank", "DBS", "Cash"]

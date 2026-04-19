@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RecentTransactionView: View {
-    let transactions: [Transaction]
+    let transactions: [RecentTransaction]
     let currencyCode: String
     
     var body: some View {
