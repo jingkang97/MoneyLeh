@@ -11,9 +11,9 @@ import PhotosUI
 struct AddTransactionView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = AddTransactionViewModel()
-//    @FocusState private var isFocused: Bool
+    //    @FocusState private var isFocused: Bool
     @FocusState private var focusedField: Field?  // ← only one FocusState
-
+    
     var header: some View {
         HStack {
             Button { dismiss() } label: {
@@ -34,12 +34,12 @@ struct AddTransactionView: View {
                     await viewModel.submit()
                 }
             } label: {
-              Image(systemName: "arrow.up")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 44, height: 44)
-                .background(viewModel.hasNoInput ? Color(.systemGray4) : Color(.systemBlue))
-                .clipShape(Circle())
+                Image(systemName: "arrow.up")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 44, height: 44)
+                    .background(viewModel.hasNoInput ? Color(.systemGray4) : Color(.systemBlue))
+                    .clipShape(Circle())
             }
             .disabled(viewModel.hasNoInput || viewModel.isLoading)
         }
@@ -47,24 +47,35 @@ struct AddTransactionView: View {
     }
     
     var amountInput: some View {
-        ZStack {
-            Text(viewModel.formattedAmount)
-                .font(.system(size: 48, weight: .bold))
-                .frame(maxWidth: .infinity)
-                .foregroundStyle(viewModel.hasNoAmountInput ? .secondary : .primary)
-                .contentShape(Rectangle())
-                .onTapGesture {
-//                    isFocused = true
-                    focusedField = .amount  // ← changed
-                }
-            
-            TextField("", text: $viewModel.rawInput)
-                .keyboardType(.numberPad)
-//                .focused($isFocused)
-                .focused($focusedField, equals: .amount)  // ← changed
-                .opacity(0.01)
-                .onChange(of: viewModel.rawInput) { _, newValue in viewModel.handleInput(newValue)}
+        VStack(spacing: 4) {
+            ZStack {
+                Text(viewModel.formattedAmount)
+                    .font(.system(size: 48, weight: .bold))
+                    .frame(maxWidth: .infinity)
+                    .foregroundStyle(viewModel.hasNoAmountInput ? .secondary : .primary)
+//                    .minimumScaleFactor(0.5)
+//                    .lineLimit(2)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        //                    isFocused = true
+                        focusedField = .amount  // ← changed
+                    }
+                
+                TextField("", text: $viewModel.rawInput)
+                    .keyboardType(.numberPad)
+                //                .focused($isFocused)
+                    .focused($focusedField, equals: .amount)  // ← changed
+                    .opacity(0.01)
+                    .onChange(of: viewModel.rawInput) { _, newValue in viewModel.handleInput(newValue)}
+            }
+            if viewModel.showAmountWarning {
+                Text("Maximum amount reached")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .transition(.opacity)
+            }
         }
+        .animation(.easeInOut, value: viewModel.showAmountWarning)
     }
     
     var body: some View {

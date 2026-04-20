@@ -24,7 +24,9 @@ class AddTransactionViewModel {
     var error: String?
     var didSubmitSuccessfully = false
     var showSuccess = false
+    var showAmountWarning = false
     
+    private let maxAmountInCents = 99_999_999
     private let service = TransactionService()
     
     var formattedAmount: String {
@@ -38,8 +40,17 @@ class AddTransactionViewModel {
     
     func handleInput(_ newValue: String) {
         let digits = newValue.filter { $0.isNumber }
-        amountInCents = digits.isEmpty ? 0 : (Int(digits) ?? 0)
-        rawInput = digits
+        let value = digits.isEmpty ? 0 : (Int(digits) ?? 0)
+        
+        if value > maxAmountInCents {
+            showAmountWarning = true
+            // Don't update — keep previous value
+            rawInput = String(amountInCents)
+        } else {
+            showAmountWarning = false
+            amountInCents = value
+            rawInput = digits
+        }
     }
     
     func submit() async {
