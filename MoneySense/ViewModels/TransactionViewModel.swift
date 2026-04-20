@@ -23,6 +23,7 @@ class AddTransactionViewModel {
     var isLoading = false
     var error: String?
     var didSubmitSuccessfully = false
+    var showSuccess = false
     
     private let service = TransactionService()
     
@@ -51,7 +52,7 @@ class AddTransactionViewModel {
         let dateString = formatter.string(from: date)
         
         // Temporary hardcoded userId until auth is built
-        let userId = "00000000-0000-0000-0000-000000000000"
+        let userId = "7eae0967-14c2-4161-9039-748e7505efd5"
         
         do {
 //            let userId  = try await SupabaseManager.shared.client.auth.session.user.id.uuidString
@@ -68,12 +69,22 @@ class AddTransactionViewModel {
             )
             
             try await service.insert(new)
+            isLoading = false
+            
+            withAnimation(.spring(duration: 0.4)) {
+                showSuccess = true
+            }
+            try? await Task.sleep(for: .seconds(1.5))
+            withAnimation(.easeOut(duration: 0.3)) {
+                showSuccess = false
+            }
+            try? await Task.sleep(for: .milliseconds(300))
             didSubmitSuccessfully = true
             reset()
+            
         } catch {
             self.error = error.localizedDescription
         }
-        
         isLoading = false
     }
     

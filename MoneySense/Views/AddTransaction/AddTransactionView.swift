@@ -29,19 +29,13 @@ struct AddTransactionView: View {
                 .font(.headline)
             Spacer()
             Button {
+                focusedField = nil
                 Task {
                     await viewModel.submit()
                 }
             } label: {
-                Group {
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .tint(.white)
-                    } else {
-                        Image(systemName: "arrow.up")
-                            .font(.system(size: 18, weight: .semibold))
-                    }
-                }
+              Image(systemName: "arrow.up")
+                .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: 44, height: 44)
                 .background(viewModel.hasNoInput ? Color(.systemGray4) : Color(.systemBlue))
@@ -96,9 +90,6 @@ struct AddTransactionView: View {
                 try? await Task.sleep(for: .milliseconds(300))
                 focusedField = .amount
             }
-            .onChange(of: viewModel.didSubmitSuccessfully) { _, success in
-                if success { dismiss() }
-            }
             .alert("Error", isPresented: .constant(viewModel.error != nil)) {
                 Button("OK") { viewModel.error = nil }
             } message: {
@@ -136,6 +127,19 @@ struct AddTransactionView: View {
                     }
                     .foregroundStyle(.blue)
                 }
+            }
+            .overlay {
+                if viewModel.showSuccess {
+                    SuccessOverlayView()
+                }
+            }
+            .overlay {
+                if viewModel.isLoading {
+                    LoadingOverlayView()
+                }
+            }
+            .onChange(of: viewModel.didSubmitSuccessfully) { _, success in
+                if success { dismiss() }
             }
         }
     }
