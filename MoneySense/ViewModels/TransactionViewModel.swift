@@ -89,7 +89,6 @@ class AddTransactionViewModel {
             withAnimation(.easeOut(duration: 0.3)) {
                 showSuccess = false
             }
-            try? await Task.sleep(for: .milliseconds(300))
             didSubmitSuccessfully = true
             reset()
             
