@@ -8,23 +8,28 @@
 import SwiftUI
 
 struct TransactionRowView: View {
-    let transaction: RecentTransaction
+    let transaction: Transaction
     let currencyCode: String
+    
+    private var categoryColor: Color {
+        guard let hex = transaction.category?.color else { return .gray }
+        return Color(hex: hex)
+    }
     
     var body: some View {
         HStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(transaction.color.opacity(0.2))
+                    .fill(categoryColor.opacity(0.2))
                     .frame(width: 40, height: 40)
                 
-                Image(systemName: transaction.icon)
-                    .foregroundColor(transaction.color)
+                Image(systemName: transaction.category?.icon ?? "tag")
+                    .foregroundColor(categoryColor)
             }
             
             VStack(alignment: .leading) {
-                Text(transaction.title)
-                Text(transaction.date)
+                Text(transaction.description ?? "Unnamed")
+                Text(transaction.date, style: .date)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

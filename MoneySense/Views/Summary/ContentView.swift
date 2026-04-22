@@ -28,7 +28,6 @@ struct ContentView: View {
                     )
                     
                     RecentTransactionView(
-                        transactions: MockData.transactions,
                         currencyCode: currencyCode
                     )
                     .padding(.top, 8)

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RecentTransactionView: View {
-    let transactions: [RecentTransaction]
+    @StateObject private var viewModel = RecentTransactionViewModel()
     let currencyCode: String
     
     var body: some View {
@@ -30,14 +30,18 @@ struct RecentTransactionView: View {
             .padding(.horizontal, 16)
             
             Card(spacing: 0, padding: 0) {
-                ForEach(transactions.indices, id: \.self) { index in
-                    TransactionRowView(transaction: transactions[index], currencyCode: currencyCode)
+                ForEach(viewModel.transactions.indices, id: \.self) { index in
+                    TransactionRowView(transaction: viewModel.transactions[index], currencyCode: currencyCode)
         
-                    if index != transactions.count - 1 {
+                    if index != viewModel.transactions.count - 1 {
                         Divider().padding(.leading, 60)
                     }
                 }
             }
+            
+        }
+        .task {
+            await viewModel.load()
         }
     }
 }

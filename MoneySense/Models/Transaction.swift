@@ -7,17 +7,23 @@
 import Foundation
 
 struct Transaction: Identifiable, Codable {
-    let id: String
+    let id: UUID
     let userId: String
     let amountInCents: Int
     let description: String?
-    let date: String
+    let date: Date
     let sourceId: UUID?
     let categoryId: UUID?
     let notes: String?
     let receiptUrl: String?
-//    let createdAt: Date
-    let createdAt: String
+    let createdAt: Date
+    let category: Category?
+    
+    struct Category: Codable {
+        let name: String
+        let color: String
+        let icon: String
+    }
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -30,6 +36,7 @@ struct Transaction: Identifiable, Codable {
         case notes
         case receiptUrl = "receipt_url"
         case createdAt = "created_at"
+        case category
     }
     
     var amount: Double {

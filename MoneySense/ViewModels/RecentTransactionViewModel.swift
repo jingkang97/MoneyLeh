@@ -1,0 +1,33 @@
+//
+//  Untitled.swift
+//  MoneySense
+//
+//  Created by Jing Kang Ng on 21/4/26.
+//
+
+import Foundation
+import Combine
+
+@MainActor
+class RecentTransactionViewModel: ObservableObject {
+    @Published var transactions: [Transaction] = []
+    @Published var isLoading = false
+    @Published var error: Error?
+    
+    private let service = TransactionService()
+    
+    func load() async {
+        isLoading = true
+        do {
+            transactions = try await service.fetchRecent()
+            print("Fetched count:", transactions.count)
+            print("✅ Loaded \(transactions.count) transactions")
+            transactions.forEach { print("→ \($0.description ?? "nil") \($0.category?.name ?? "no category")") }
+
+        } catch {
+            self.error = error
+            print("❌ LOAD ERROR:", error)
+        }
+        isLoading = false
+    }
+}
