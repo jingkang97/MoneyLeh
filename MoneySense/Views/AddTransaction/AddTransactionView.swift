@@ -19,11 +19,10 @@ struct AddTransactionView: View {
             Button { dismiss() } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.black)
                     .frame(width: 44, height: 44)
-                    .background(Color(.systemGray5))
-                    .clipShape(Circle())
             }
+            .glassEffect(.regular.interactive(), in: Circle())
             Spacer()
             Text("Add Transaction")
                 .font(.headline)
@@ -38,9 +37,8 @@ struct AddTransactionView: View {
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(width: 44, height: 44)
-                    .background(viewModel.hasNoInput ? Color(.systemGray4) : Color(.systemBlue))
-                    .clipShape(Circle())
             }
+            .glassEffect(.regular.tint(viewModel.hasNoInput ? .gray : .blue).interactive(), in: Circle())
             .disabled(viewModel.hasNoInput || viewModel.isLoading)
         }
         .padding()
