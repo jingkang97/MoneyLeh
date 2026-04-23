@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		214553E12F9A5B5100BFAD4C /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = 214553E02F9A5B5100BFAD4C /* SkeletonView */; };
+		214553E42F9A5D1D00BFAD4C /* Shimmer in Frameworks */ = {isa = PBXBuildFile; productRef = 214553E32F9A5D1D00BFAD4C /* Shimmer */; };
 		216F14BE2F85349600406F7E /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 216F14BD2F85349600406F7E /* SwiftUIIntrospect */; };
 		216F14C22F85349600406F7E /* SwiftUIIntrospect-Static in Frameworks */ = {isa = PBXBuildFile; productRef = 216F14C12F85349600406F7E /* SwiftUIIntrospect-Static */; };
 		21C4F3902F9292E500EC68F2 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 21C4F38F2F9292E500EC68F2 /* Supabase */; };
@@ -54,6 +56,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				214553E12F9A5B5100BFAD4C /* SkeletonView in Frameworks */,
+				214553E42F9A5D1D00BFAD4C /* Shimmer in Frameworks */,
 				216F14BE2F85349600406F7E /* SwiftUIIntrospect in Frameworks */,
 				216F14C22F85349600406F7E /* SwiftUIIntrospect-Static in Frameworks */,
 				21C4F3902F9292E500EC68F2 /* Supabase in Frameworks */,
@@ -110,6 +114,8 @@
 				216F14BD2F85349600406F7E /* SwiftUIIntrospect */,
 				216F14C12F85349600406F7E /* SwiftUIIntrospect-Static */,
 				21C4F38F2F9292E500EC68F2 /* Supabase */,
+				214553E02F9A5B5100BFAD4C /* SkeletonView */,
+				214553E32F9A5D1D00BFAD4C /* Shimmer */,
 			);
 			productName = MoneySense;
 			productReference = 217785CA2F5DA3740035DF5C /* MoneySense.app */;
@@ -142,6 +148,8 @@
 			packageReferences = (
 				216F14BC2F85349600406F7E /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
 				21C4F3892F92893E00EC68F2 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				214553DF2F9A5B5100BFAD4C /* XCRemoteSwiftPackageReference "SkeletonView" */,
+				214553E22F9A5D1D00BFAD4C /* XCRemoteSwiftPackageReference "swiftui-Shimmer" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 217785CB2F5DA3740035DF5C /* Products */;
@@ -387,6 +395,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		214553DF2F9A5B5100BFAD4C /* XCRemoteSwiftPackageReference "SkeletonView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Juanpe/SkeletonView";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.31.0;
+			};
+		};
+		214553E22F9A5D1D00BFAD4C /* XCRemoteSwiftPackageReference "swiftui-Shimmer" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/markiv/swiftui-Shimmer";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.1;
+			};
+		};
 		216F14BC2F85349600406F7E /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect";
@@ -406,6 +430,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		214553E02F9A5B5100BFAD4C /* SkeletonView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 214553DF2F9A5B5100BFAD4C /* XCRemoteSwiftPackageReference "SkeletonView" */;
+			productName = SkeletonView;
+		};
+		214553E32F9A5D1D00BFAD4C /* Shimmer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 214553E22F9A5D1D00BFAD4C /* XCRemoteSwiftPackageReference "swiftui-Shimmer" */;
+			productName = Shimmer;
+		};
 		216F14BD2F85349600406F7E /* SwiftUIIntrospect */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 216F14BC2F85349600406F7E /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;

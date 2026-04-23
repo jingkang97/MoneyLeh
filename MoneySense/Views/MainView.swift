@@ -32,5 +32,5 @@ struct MainView: View {
 }
 
 #Preview {
-    MainView()
+    MainView().accessibilityHidden(true)
 }

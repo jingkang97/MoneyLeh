@@ -1,15 +1,13 @@
-//
-//  RecentTransactionView.swift
-//  MoneySense
-//
-//  Created by Jing Kang Ng on 14/4/26.
-//
-
 import SwiftUI
+import Shimmer
 
 struct RecentTransactionView: View {
     @StateObject private var viewModel = RecentTransactionViewModel()
     let currencyCode: String
+    
+    private var displayTransactions: [Transaction] {
+        viewModel.isLoading ? (0..<5).map { _ in .placeholder } : viewModel.transactions
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -30,15 +28,16 @@ struct RecentTransactionView: View {
             .padding(.horizontal, 16)
             
             Card(spacing: 0, padding: 0) {
-                ForEach(viewModel.transactions.indices, id: \.self) { index in
-                    TransactionRowView(transaction: viewModel.transactions[index], currencyCode: currencyCode)
+                ForEach(displayTransactions.indices, id: \.self) { index in
+                    TransactionRowView(transaction: displayTransactions[index], currencyCode: currencyCode)
+                        .redacted(reason: viewModel.isLoading ? .placeholder : [])
         
-                    if index != viewModel.transactions.count - 1 {
+                    if index != displayTransactions.count - 1 {
                         Divider().padding(.leading, 60)
                     }
                 }
             }
-            
+            .shimmering(active: viewModel.isLoading)
         }
         .task {
             await viewModel.load()

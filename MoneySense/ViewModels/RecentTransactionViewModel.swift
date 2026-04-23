@@ -18,10 +18,11 @@ class RecentTransactionViewModel: ObservableObject {
     
     func load() async {
         isLoading = true
+        print("🟡 isLoading:", isLoading)
+        print("🟡 displayTransactions count should be 5")
+        try? await Task.sleep(nanoseconds: 2_000_000_000)
         do {
             transactions = try await service.fetchRecent()
-            print("Fetched count:", transactions.count)
-            print("✅ Loaded \(transactions.count) transactions")
             transactions.forEach { print("→ \($0.description ?? "nil") \($0.category?.name ?? "no category")") }
 
         } catch {
@@ -29,5 +30,7 @@ class RecentTransactionViewModel: ObservableObject {
             print("❌ LOAD ERROR:", error)
         }
         isLoading = false
+        print("🟢 isLoading:", isLoading)
+
     }
 }
