@@ -7,6 +7,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var viewModel = SummaryViewModel()
+    @StateObject private var transactionViewModel = RecentTransactionViewModel()
     private var currencyCode = Locale.current.currencyCode
     
     var body: some View {
@@ -28,12 +29,18 @@ struct ContentView: View {
                     )
                     
                     RecentTransactionView(
+                        viewModel: transactionViewModel,
                         currencyCode: currencyCode
                     )
                     .padding(.top, 8)
                 }
                 .padding()
             }
+            .refreshable {
+                print("🔄 refreshing transactionViewModel:", ObjectIdentifier(transactionViewModel))
+                await Task {
+                        await transactionViewModel.load()
+                    }.value            }
             .navigationTitle("Summary")
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {

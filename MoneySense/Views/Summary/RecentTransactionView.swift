@@ -2,7 +2,7 @@ import SwiftUI
 import Shimmer
 
 struct RecentTransactionView: View {
-    @StateObject private var viewModel = RecentTransactionViewModel()
+    @ObservedObject var viewModel: RecentTransactionViewModel
     let currencyCode: String
     
     private var displayTransactions: [Transaction] {
@@ -40,6 +40,7 @@ struct RecentTransactionView: View {
             .shimmering(active: viewModel.isLoading)
         }
         .task {
+            guard viewModel.transactions.isEmpty else { return }
             await viewModel.load()
         }
     }
