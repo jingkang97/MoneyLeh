@@ -8,13 +8,13 @@ import SwiftUI
 
 struct MainView: View {
     @State private var showAddSheet = false
-    
+    @StateObject var transactionViewModel = RecentTransactionViewModel()
     enum Tabs { case home, stats, budget, more, add }
     @State var selectedTab: Tabs = .home
     
     var body: some View {
         TabView (selection: $selectedTab) {
-            Tab("Home", systemImage: "house.fill", value: .home) { ContentView() }
+            Tab("Home", systemImage: "house.fill", value: .home) { ContentView(transactionViewModel: transactionViewModel) }
             Tab("Stats", systemImage: "chart.pie.fill", value: .stats) { Text("Stats")}
             Tab("Budget", systemImage: "wallet.pass.fill", value: .budget) { Text("Budget")}
             Tab("More", systemImage: "ellipsis.circle.fill", value: .more) {Text("More")}
@@ -26,7 +26,11 @@ struct MainView: View {
                 selectedTab = oldValue
             }
         }.sheet(isPresented: $showAddSheet) {
-            AddTransactionView()
+            AddTransactionView {
+                Task {
+                    await transactionViewModel.load()
+                }
+            }
         }
     }
 }

@@ -7,8 +7,12 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var viewModel = SummaryViewModel()
-    @StateObject private var transactionViewModel = RecentTransactionViewModel()
+    @ObservedObject var transactionViewModel: RecentTransactionViewModel
     private var currencyCode = Locale.current.currencyCode
+    
+    init(transactionViewModel: RecentTransactionViewModel) {
+            self.transactionViewModel = transactionViewModel
+        }
     
     var body: some View {
         NavigationStack {

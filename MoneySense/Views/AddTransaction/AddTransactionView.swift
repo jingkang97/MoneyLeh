@@ -11,8 +11,9 @@ import PhotosUI
 struct AddTransactionView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = AddTransactionViewModel()
-    //    @FocusState private var isFocused: Bool
-    @FocusState private var focusedField: Field?  // ← only one FocusState
+    @FocusState private var focusedField: Field?
+    
+    var onSuccess: (() -> Void)? = nil
     
     var header: some View {
         HStack {
@@ -51,18 +52,14 @@ struct AddTransactionView: View {
                     .font(.system(size: 48, weight: .bold))
                     .frame(maxWidth: .infinity)
                     .foregroundStyle(viewModel.hasNoAmountInput ? .secondary : .primary)
-//                    .minimumScaleFactor(0.5)
-//                    .lineLimit(2)
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        //                    isFocused = true
-                        focusedField = .amount  // ← changed
+                        focusedField = .amount
                     }
                 
                 TextField("", text: $viewModel.rawInput)
                     .keyboardType(.numberPad)
-                //                .focused($isFocused)
-                    .focused($focusedField, equals: .amount)  // ← changed
+                    .focused($focusedField, equals: .amount)
                     .opacity(0.01)
                     .onChange(of: viewModel.rawInput) { _, newValue in viewModel.handleInput(newValue)}
             }
@@ -94,9 +91,8 @@ struct AddTransactionView: View {
                 )
             }
             .background(Color(.systemGray6).ignoresSafeArea())
-//            .task { isFocused = true }
             .task {
-                try? await Task.sleep(for: .milliseconds(300))
+//                try? await Task.sleep(for: .milliseconds(300))
                 focusedField = .amount
             }
             .alert("Error", isPresented: .constant(viewModel.error != nil)) {
@@ -148,7 +144,10 @@ struct AddTransactionView: View {
                 }
             }
             .onChange(of: viewModel.didSubmitSuccessfully) { _, success in
-                if success { dismiss() }
+                if success {
+                    onSuccess?()
+                    dismiss()
+                }
             }
         }
     }
