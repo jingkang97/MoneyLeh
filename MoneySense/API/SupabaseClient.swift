@@ -24,6 +24,14 @@ final class SupabaseManager {
         let url = URL(string: "https://ttfjygxmpszdjscyiowt.supabase.co")!
             let key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0Zmp5Z3htcHN6ZGpzY3lpb3d0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMDQwMjgsImV4cCI6MjA5MTU4MDAyOH0.6SCf4XJSACGAFyHojBh3UZEzUselbslQxy8yICvfTuk"
                     
-        self.client = SupabaseClient(supabaseURL: url, supabaseKey: key)
+        self.client = SupabaseClient(
+            supabaseURL: url,
+            supabaseKey: key,
+            options: SupabaseClientOptions(
+                auth: SupabaseClientOptions.AuthOptions(
+                    emitLocalSessionAsInitialSession: true
+                )
+            )
+        )
     }
 }

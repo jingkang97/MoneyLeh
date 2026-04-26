@@ -23,7 +23,7 @@ class TransactionService {
     func fetchRecent(limit: Int = 5) async throws -> [Transaction] {
         try await db
             .from("transactions")
-            .select("*, category: categories(name, color, icon)")
+            .select("*, category: categories(id, name, color, icon)")
             .order("date", ascending: false)
             .limit(limit)
             .execute()

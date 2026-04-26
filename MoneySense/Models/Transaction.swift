@@ -17,13 +17,13 @@ struct Transaction: Identifiable, Codable {
     let notes: String?
     let receiptUrl: String?
     let createdAt: Date
-    let category: Category?
+    let category: SpendingCategory?
     
-    struct Category: Codable {
-        let name: String
-        let color: String
-        let icon: String
-    }
+//    struct Category: Codable {
+//        let name: String
+//        let color: String
+//        let icon: String
+//    }
     
     enum CodingKeys: String, CodingKey {
         case id

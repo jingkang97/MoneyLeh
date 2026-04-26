@@ -12,14 +12,14 @@ struct ExpenseFormView: View {
     @Binding var description: String
     @Binding var date: Date
     @Binding var source: String
-    @Binding var category: String
+    @Binding var category: SpendingCategory?
     @Binding var notes: String
     @Binding var receiptItem: PhotosPickerItem?
     var focusedField: FocusState<Field?>.Binding
     
     let sources: [String]
-    let categories: [String]
-    
+    let categories: [SpendingCategory]
+
     var body: some View {
         Form {
             Section {
@@ -35,8 +35,9 @@ struct ExpenseFormView: View {
                     }
                 }
                 Picker("Category", selection: $category) {
-                    ForEach(categories, id: \.self) {
-                        Text($0).tag($0)
+                    Text("None").tag(Optional<SpendingCategory>(nil))
+                    ForEach(categories) { cat in
+                        Text(cat.name).tag(Optional(cat))
                     }
                 }
                 

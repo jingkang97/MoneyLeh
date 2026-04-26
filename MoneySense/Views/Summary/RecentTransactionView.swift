@@ -10,7 +10,7 @@ struct RecentTransactionView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Recent Transactions")
                     .font(.headline)
@@ -25,7 +25,7 @@ struct RecentTransactionView: View {
                     .font(.subheadline)
                 }
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             
             Card(spacing: 0, padding: 0) {
                 ForEach(displayTransactions.indices, id: \.self) { index in

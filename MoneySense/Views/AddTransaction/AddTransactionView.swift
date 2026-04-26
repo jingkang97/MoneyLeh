@@ -10,6 +10,7 @@ import PhotosUI
 
 struct AddTransactionView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var categoryStore: CategoryStore
     @State private var viewModel = AddTransactionViewModel()
     @FocusState private var focusedField: Field?
     
@@ -87,7 +88,7 @@ struct AddTransactionView: View {
                     receiptItem: $viewModel.receiptItem,
                     focusedField: $focusedField,  // ← fixed capitalisation
                     sources: MockData.sources,
-                    categories: MockData.categories,
+                    categories: categoryStore.categories,
                 )
             }
             .background(Color(.systemGray6).ignoresSafeArea())
@@ -148,6 +149,13 @@ struct AddTransactionView: View {
                     onSuccess?()
                     dismiss()
                 }
+            }
+            .task {
+                focusedField = .amount
+                if let first = categoryStore.categories.first {
+                        viewModel.category = first
+                    }
+                print("📦 categoryStore has:", categoryStore.categories.count, "categories")
             }
         }
     }

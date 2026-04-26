@@ -7,10 +7,11 @@
 import SwiftUI
 
 struct MainView: View {
-    @State private var showAddSheet = false
-    @StateObject var transactionViewModel = RecentTransactionViewModel()
     enum Tabs { case home, stats, budget, more, add }
+    @State private var showAddSheet = false
     @State var selectedTab: Tabs = .home
+    @StateObject var transactionViewModel = RecentTransactionViewModel()
+    @StateObject private var categoryStore = CategoryStore()
     
     var body: some View {
         TabView (selection: $selectedTab) {
@@ -31,6 +32,12 @@ struct MainView: View {
                     await transactionViewModel.load()
                 }
             }
+            .environmentObject(categoryStore)
+        }
+        .task {
+                print("🔵 task fired")
+                await categoryStore.load()
+                print("✅ categories loaded:", categoryStore.categories.count)
         }
     }
 }

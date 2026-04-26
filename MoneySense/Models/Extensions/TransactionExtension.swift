@@ -18,10 +18,13 @@ extension Transaction {
         notes: nil,
         receiptUrl: nil,
         createdAt: Date(),
-            category: Transaction.Category(
-                name: "Shopping",
-                color: "#888888",
-                icon: "tag"
+        category: SpendingCategory(
+            id: UUID(),
+            userId: nil,
+            name: "Shopping",
+            color: "#888888",
+            icon: "tag",
+            createdAt: nil
             )
         )
     }
