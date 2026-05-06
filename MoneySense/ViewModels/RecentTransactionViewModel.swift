@@ -20,7 +20,7 @@ class RecentTransactionViewModel {
         isLoading = true
         print("🟡 isLoading:", isLoading)
         print("🟡 displayTransactions count should be 5")
-        try? await Task.sleep(nanoseconds: 2_000_000_000)
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
         do {
             transactions = try await service.fetchRecent()
             transactions.forEach { print("→ \($0.description ?? "nil") \($0.category?.name ?? "no category")") }

@@ -11,12 +11,13 @@ struct MainView: View {
     @State private var showAddSheet = false
     @State var selectedTab: Tabs = .home
     @State var transactionViewModel = RecentTransactionViewModel()
+    @State var summaryViewModel = SummaryViewModel()
     @StateObject private var categoryStore = CategoryStore()
     @StateObject private var sourceStore = SourceStore()
     
     var body: some View {
         TabView (selection: $selectedTab) {
-            Tab("Home", systemImage: "house.fill", value: .home) { ContentView(transactionViewModel: transactionViewModel) }
+            Tab("Home", systemImage: "house.fill", value: .home) { ContentView(transactionViewModel: transactionViewModel, summaryViewModel: summaryViewModel) }
             Tab("Stats", systemImage: "chart.pie.fill", value: .stats) { Text("Stats")}
             Tab("Budget", systemImage: "wallet.pass.fill", value: .budget) { Text("Budget")}
             Tab("More", systemImage: "ellipsis.circle.fill", value: .more) {Text("More")}
@@ -30,7 +31,10 @@ struct MainView: View {
         }.sheet(isPresented: $showAddSheet) {
             AddTransactionView {
                 Task {
-                    await transactionViewModel.load()
+                    async let t1 = transactionViewModel.load()
+                    async let t2 = summaryViewModel.load()
+                    
+                    _ = await (t1, t2)
                 }
             }
             .environmentObject(categoryStore)

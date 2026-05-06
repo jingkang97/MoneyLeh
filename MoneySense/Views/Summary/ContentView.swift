@@ -6,33 +6,34 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var viewModel = SummaryViewModel()
+    @State var summaryViewModel: SummaryViewModel
     @State var transactionViewModel: RecentTransactionViewModel
     private var currencyCode = Locale.current.currencyCode
     
-    init(transactionViewModel: RecentTransactionViewModel) {
+    init(transactionViewModel: RecentTransactionViewModel, summaryViewModel: SummaryViewModel) {
             self.transactionViewModel = transactionViewModel
-        }
+            self.summaryViewModel = summaryViewModel
+    }
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
                     SpendingCardView(
-                        spending: viewModel.spending,
-                        selectedPeriod: $viewModel.selectedPeriod,
-                        formattedDate: viewModel.formattedDate,
+                        spending: summaryViewModel.spending,
+                        selectedPeriod: $summaryViewModel.selectedPeriod,
+                        formattedDate: summaryViewModel.formattedDate,
                         currencyCode: currencyCode,
-                        isLoading: viewModel.loading,
-                        percentageChange: viewModel.percentageChange,
-                        onPeriodChange: { viewModel.selectedPeriod = $0 }
+                        isLoading: summaryViewModel.loading,
+                        percentageChange: summaryViewModel.percentageChange,
+                        onPeriodChange: { summaryViewModel.selectedPeriod = $0 }
                     )
                     
                     BreakdownCardView(
-                        data: viewModel.sortedBreakdownData,
-                        total: viewModel.breakdownTotal,
+                        data: summaryViewModel.sortedBreakdownData,
+                        total: summaryViewModel.breakdownTotal,
                         currencyCode: currencyCode,
-                        isLoading: viewModel.loading
+                        isLoading: summaryViewModel.loading
                     )
                     
                     RecentTransactionView(
@@ -44,12 +45,12 @@ struct ContentView: View {
                 .padding()
             }
             .task {
-                await viewModel.load()
+                await summaryViewModel.load()
             }
             .refreshable {
                 print("🔄 refreshing transactionViewModel:", ObjectIdentifier(transactionViewModel))
                 await Task {
-                        await viewModel.load()
+                        await summaryViewModel.load()
                         await transactionViewModel.load()
                     
                     }.value            }

@@ -109,6 +109,7 @@ class SummaryViewModel {
     
     func load() async {
         loading = true
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
         do {
             transactions = try await service.fetchLastTwoMonths()
         } catch {
@@ -116,7 +117,4 @@ class SummaryViewModel {
         }
         loading = false
     }
-    
-    
-    
 }

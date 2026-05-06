@@ -9,7 +9,7 @@ import SwiftUI
 
 enum MockData {
     static let cateogrySpending: [CategorySpending] = [
-        .init(category: "Food", amount: 200, color: .gray),
+        .init(category: "Food & Drink", amount: 200, color: .gray),
         .init(category: "Transport", amount: 150, color: .gray),
         .init(category: "Shopping", amount: 300, color: .gray),
     ]
