@@ -9,8 +9,12 @@ import Observation
 
 @Observable
 class SummaryViewModel {
-    var spending: Double = 140.10
+    var transactions: [Transaction] = []
     var selectedPeriod: String = "Daily"
+    var loading = false
+    var error: (any Error)?
+    
+    private let service = TransactionService()
     
     var weekRange: String {
         var calendar = Calendar.current
@@ -33,11 +37,86 @@ class SummaryViewModel {
         }
     }
     
+    var spending: Double {
+        switch selectedPeriod {
+        case "Daily":
+            return transactions
+                .filter { Calendar.current.isDateInToday($0.date) }
+                .reduce(0) { $0 + $1.amount }
+        case "Weekly":
+            return transactions
+                .filter { Calendar.current.isDate($0.date, equalTo: Date(), toGranularity: .weekOfYear) }
+                .reduce(0) { $0 + $1.amount }
+        
+        case "Monthly":
+            return transactions
+                .filter { Calendar.current.isDate($0.date, equalTo: Date(), toGranularity: .month) }
+                .reduce(0) { $0 + $1.amount }
+        default: return 0
+        }
+    }
+    
+    var percentageChange: Double {
+        let current = spending
+        let previous: Double
+        
+        switch selectedPeriod {
+        case "Daily":
+            previous = transactions
+                .filter { Calendar.current.isDateInYesterday($0.date) }
+                .reduce(0) { $0 + $1.amount }
+        case "Weekly":
+            let lastWeekStart = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date())!
+            previous = transactions
+                .filter {
+                    let cal = Calendar.current
+                    return cal.isDate($0.date, equalTo: lastWeekStart, toGranularity: .weekOfYear)
+                }
+                .reduce(0) { $0 + $1.amount }
+        case "Monthly":
+            let lastMonth = Calendar.current.date(byAdding: .month, value: -1, to: Date())!
+            previous = transactions
+                .filter {
+                    Calendar.current.isDate($0.date, equalTo: lastMonth, toGranularity: .weekOfMonth)
+                }
+                .reduce(0) { $0 + $1.amount }
+        default:
+            return 0
+        }
+        
+        guard previous > 0 else { return 0 }
+        return ((current - previous) / previous) * 100
+    }
+    
+    var breakdownTransactions: [Transaction] {
+        transactions.filter { Calendar.current.isDate($0.date, equalTo: Date(), toGranularity: .month) }
+    }
+    
     var sortedBreakdownData: [CategorySpending] {
-        MockData.cateogrySpending.sorted {$0.amount > $1.amount}
+        let grouped = Dictionary(grouping: breakdownTransactions) { $0.category?.name ?? "Other" }
+        
+        let mapped = grouped.map { name, txns -> CategorySpending in
+            let total = txns.reduce(0) { $0 + $1.amount }
+            let colorHex = txns.first?.category?.color ?? "#888888"
+            return CategorySpending(category: name, amount: total, color: Color(hex: colorHex))
+        }
+        return mapped.sorted { $0.amount > $1.amount }
     }
     
     var breakdownTotal: Double {
-        MockData.cateogrySpending.reduce(0) { $0 + $1.amount }
+        breakdownTransactions.reduce(0) { $0 + $1.amount }
     }
+    
+    func load() async {
+        loading = true
+        do {
+            transactions = try await service.fetchLastTwoMonths()
+        } catch {
+            self.error = error
+        }
+        loading = false
+    }
+    
+    
+    
 }

@@ -11,13 +11,13 @@ import PhotosUI
 struct ExpenseFormView: View {
     @Binding var description: String
     @Binding var date: Date
-    @Binding var source: String
+    @Binding var source: SpendingSource?
     @Binding var category: SpendingCategory?
     @Binding var notes: String
     @Binding var receiptItem: PhotosPickerItem?
     var focusedField: FocusState<Field?>.Binding
     
-    let sources: [String]
+    let sources: [SpendingSource]
     let categories: [SpendingCategory]
 
     var body: some View {
@@ -30,8 +30,9 @@ struct ExpenseFormView: View {
                 }
                 DatePicker("Date", selection: $date, displayedComponents: [.date])
                 Picker("Source", selection: $source) {
-                    ForEach(sources, id: \.self) {
-                        Text($0).tag($0)
+                    Text("None").tag(Optional<SpendingSource>(nil))
+                    ForEach(sources) { src in
+                        Text(src.name).tag(Optional(src))
                     }
                 }
                 Picker("Category", selection: $category) {

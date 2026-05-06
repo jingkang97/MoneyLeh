@@ -10,8 +10,9 @@ struct MainView: View {
     enum Tabs { case home, stats, budget, more, add }
     @State private var showAddSheet = false
     @State var selectedTab: Tabs = .home
-    @StateObject var transactionViewModel = RecentTransactionViewModel()
+    @State var transactionViewModel = RecentTransactionViewModel()
     @StateObject private var categoryStore = CategoryStore()
+    @StateObject private var sourceStore = SourceStore()
     
     var body: some View {
         TabView (selection: $selectedTab) {
@@ -33,11 +34,15 @@ struct MainView: View {
                 }
             }
             .environmentObject(categoryStore)
+            .environmentObject(sourceStore)
         }
         .task {
-                print("🔵 task fired")
-                await categoryStore.load()
-                print("✅ categories loaded:", categoryStore.categories.count)
+            print("🔵 task fired")
+            await categoryStore.load()
+            print("✅ categories loaded:", categoryStore.categories.count)
+            await sourceStore.load()
+            print("✅ sources loaded:", sourceStore.sources.count)
+
         }
     }
 }

@@ -11,15 +11,6 @@ import Supabase
 class TransactionService {
     private let db = SupabaseManager.shared.client
     
-    func fetchAll() async throws -> [Transaction] {
-        try await db
-            .from("transactions")
-            .select()
-            .order("created_at", ascending: false)
-            .execute()
-            .value
-    }
-    
     func fetchRecent(limit: Int = 5) async throws -> [Transaction] {
         try await db
             .from("transactions")
@@ -27,6 +18,20 @@ class TransactionService {
             .order("date", ascending: false)
             .limit(limit)
             .execute()
+            .value
+    }
+    
+    func fetchLastTwoMonths() async throws -> [Transaction] {
+        let now = Date()
+        let oneMonthAgo = Calendar.current.date(byAdding: .month, value: -1, to: now)!
+
+        return try await db
+            .from("transactions")
+            .select("*, category: categories(id, name, color, icon)")
+            .gte("date", value: oneMonthAgo.isoString)
+            .lte("date", value: now.isoString)
+            .order("date", ascending: false)
+            .execute() 
             .value
     }
     

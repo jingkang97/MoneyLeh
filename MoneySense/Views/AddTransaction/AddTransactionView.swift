@@ -11,6 +11,7 @@ import PhotosUI
 struct AddTransactionView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var categoryStore: CategoryStore
+    @EnvironmentObject var sourceStore: SourceStore
     @State private var viewModel = AddTransactionViewModel()
     @FocusState private var focusedField: Field?
     
@@ -87,7 +88,7 @@ struct AddTransactionView: View {
                     notes: $viewModel.notes,
                     receiptItem: $viewModel.receiptItem,
                     focusedField: $focusedField,  // ← fixed capitalisation
-                    sources: MockData.sources,
+                    sources: sourceStore.sources,
                     categories: categoryStore.categories,
                 )
             }
@@ -152,10 +153,14 @@ struct AddTransactionView: View {
             }
             .task {
                 focusedField = .amount
-                if let first = categoryStore.categories.first {
-                        viewModel.category = first
+                if let firstCategory = categoryStore.categories.first {
+                        viewModel.category = firstCategory
                     }
                 print("📦 categoryStore has:", categoryStore.categories.count, "categories")
+                if let firstSource = sourceStore.sources.first {
+                    viewModel.source = firstSource
+                }
+                print("📦 sourceStore has:", sourceStore.sources.count, "sources")
             }
         }
     }

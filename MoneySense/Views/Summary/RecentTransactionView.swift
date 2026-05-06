@@ -2,7 +2,7 @@ import SwiftUI
 import Shimmer
 
 struct RecentTransactionView: View {
-    @ObservedObject var viewModel: RecentTransactionViewModel
+    @State var viewModel: RecentTransactionViewModel
     let currencyCode: String
     
     private var displayTransactions: [Transaction] {

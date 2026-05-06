@@ -11,16 +11,5 @@ struct CategorySpending: Identifiable {
     let id = UUID()
     let category: String
     let amount: Double
-}
-
-extension CategorySpending {
-    var color: Color {
-        switch category {
-        case "Food": return .orange
-        case "Transport": return .blue
-        case "Shopping": return .yellow
-        case "Others": return .purple
-        default: return .gray
-        }
-    }
+    let color: Color
 }

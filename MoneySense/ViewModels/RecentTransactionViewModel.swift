@@ -6,13 +6,13 @@
 //
 
 import Foundation
-import Combine
 
 @MainActor
-class RecentTransactionViewModel: ObservableObject {
-    @Published var transactions: [Transaction] = []
-    @Published var isLoading = false
-    @Published var error: Error?
+@Observable
+class RecentTransactionViewModel {
+    var transactions: [Transaction] = []
+    var isLoading = false
+    var error: Error?
     
     private let service = TransactionService()
     
@@ -31,6 +31,5 @@ class RecentTransactionViewModel: ObservableObject {
         }
         isLoading = false
         print("🟢 isLoading:", isLoading)
-
     }
 }

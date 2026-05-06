@@ -15,7 +15,7 @@ class AddTransactionViewModel {
     var rawInput: String = ""
     var description: String = ""
     var date: Date = Date()
-    var source: String = MockData.sources.first ?? ""
+    var source: SpendingSource? = nil
     var category: SpendingCategory? = nil
     var notes: String = ""
     var receiptItem: PhotosPickerItem?
@@ -73,7 +73,7 @@ class AddTransactionViewModel {
                 amountInCents: amountInCents,
                 description: description,
                 date: dateString,
-                sourceId: nil,
+                sourceId: source?.id.uuidString,
                 categoryId: category?.id.uuidString,
                 notes: notes.isEmpty ? nil : notes,
                 receiptUrl: nil
@@ -103,7 +103,7 @@ class AddTransactionViewModel {
         rawInput = ""
         description = ""
         date = Date()
-        source = MockData.sources.first ?? ""
+        source = nil
         category = nil
         notes = ""
         receiptItem = nil

@@ -7,7 +7,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var viewModel = SummaryViewModel()
-    @ObservedObject var transactionViewModel: RecentTransactionViewModel
+    @State var transactionViewModel: RecentTransactionViewModel
     private var currencyCode = Locale.current.currencyCode
     
     init(transactionViewModel: RecentTransactionViewModel) {
@@ -23,13 +23,16 @@ struct ContentView: View {
                         selectedPeriod: $viewModel.selectedPeriod,
                         formattedDate: viewModel.formattedDate,
                         currencyCode: currencyCode,
+                        isLoading: viewModel.loading,
+                        percentageChange: viewModel.percentageChange,
                         onPeriodChange: { viewModel.selectedPeriod = $0 }
                     )
                     
                     BreakdownCardView(
                         data: viewModel.sortedBreakdownData,
                         total: viewModel.breakdownTotal,
-                        currencyCode: currencyCode
+                        currencyCode: currencyCode,
+                        isLoading: viewModel.loading
                     )
                     
                     RecentTransactionView(
@@ -40,10 +43,15 @@ struct ContentView: View {
                 }
                 .padding()
             }
+            .task {
+                await viewModel.load()
+            }
             .refreshable {
                 print("🔄 refreshing transactionViewModel:", ObjectIdentifier(transactionViewModel))
                 await Task {
+                        await viewModel.load()
                         await transactionViewModel.load()
+                    
                     }.value            }
             .navigationTitle("Summary")
             .toolbarTitleDisplayMode(.inlineLarge)
