@@ -17,7 +17,13 @@ struct MainView: View {
     
     var body: some View {
         TabView (selection: $selectedTab) {
-            Tab("Home", systemImage: "house.fill", value: .home) { ContentView(transactionViewModel: transactionViewModel, summaryViewModel: summaryViewModel) }
+            Tab("Home", systemImage: "house.fill", value: .home) {
+                ContentView(
+                    transactionViewModel: transactionViewModel,
+                    summaryViewModel: summaryViewModel,
+                    onAddTransaction: { showAddSheet = true }
+                )
+            }
             Tab("Stats", systemImage: "chart.pie.fill", value: .stats) { Text("Stats")}
             Tab("Budget", systemImage: "wallet.pass.fill", value: .budget) { Text("Budget")}
             Tab("More", systemImage: "ellipsis.circle.fill", value: .more) {Text("More")}

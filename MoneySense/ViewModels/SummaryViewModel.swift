@@ -16,6 +16,10 @@ class SummaryViewModel {
     
     private let service = TransactionService()
     
+    var hasData: Bool {
+        !transactions.isEmpty
+    }
+    
     var weekRange: String {
         var calendar = Calendar.current
         calendar.firstWeekday = 2
