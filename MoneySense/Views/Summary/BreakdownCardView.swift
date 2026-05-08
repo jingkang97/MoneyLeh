@@ -41,8 +41,12 @@ struct BreakdownCardView: View {
                     }
 
                     VStack {
-                        Text(isLoading ? 000.00 : total, format: .currency(code: currencyCode))
+                        Text(total.walletFormatted(currencyCode: currencyCode))
                             .font(.title2.bold())
+                            .monospacedDigit()
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                            .frame(maxWidth: 120)
                             .redacted(reason: isLoading ? .placeholder : [])
                         Text("spent")
                             .font(.caption)
@@ -58,7 +62,7 @@ struct BreakdownCardView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     ForEach(isLoading ? mockData : data) { item in
                         HStack(spacing: 8) {
-                            RoundedRectangle(cornerRadius: 3)
+                            Circle()
                                 .fill(isLoading ? Color.secondary.opacity(0.2) : item.color)
                                 .frame(width: 10, height: 10)
 

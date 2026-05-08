@@ -50,10 +50,13 @@ struct ContentView: View {
             .refreshable {
                 print("🔄 refreshing transactionViewModel:", ObjectIdentifier(transactionViewModel))
                 await Task {
-                        await summaryViewModel.load()
-                        await transactionViewModel.load()
+                    async let t1 = transactionViewModel.load()
+                    async let t2 = summaryViewModel.load()
                     
-                    }.value            }
+                    _ = await (t1, t2)
+                    
+                }.value
+            }
             .navigationTitle("Summary")
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {

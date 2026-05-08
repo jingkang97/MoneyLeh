@@ -13,19 +13,22 @@ struct SpendingCardView: View {
     let formattedDate: String
     let currencyCode: String
     let isLoading: Bool
-    let percentageChange: Double
+    let percentageChange: Double?
     let onPeriodChange: (String) -> Void
     
     private var chipColor: Color {
-        percentageChange <= 0 ? .green : .red
+        guard let change = percentageChange else { return .blue }
+        return change <= 0 ? .green : .red
     }
 
-    private var chipIcon: String {
-        percentageChange <= 0 ? "arrowtriangle.down.fill" : "arrowtriangle.up.fill"
+    private var chipIcon: String? {
+        guard let change = percentageChange else { return nil }
+        return change <= 0 ? "arrowtriangle.down.fill" : "arrowtriangle.up.fill"
     }
     
     private var chipLabel: String {
-        String(format: "%.0f%%", abs(percentageChange))
+        guard let change = percentageChange else { return "New" }
+        return String(format: "%.0f%%", abs(change))
     }
     
     var body: some View {
@@ -57,8 +60,11 @@ struct SpendingCardView: View {
                     .foregroundStyle(.secondary)
                 
                 HStack(alignment: .bottom) {
-                    Text(spending, format: .currency(code: currencyCode))
+                    Text(spending.walletFormatted(currencyCode: currencyCode))
+                        .monospacedDigit()
                         .font(.system(size: 40, weight: .bold, design: .rounded))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
                     Spacer()
                     Chip(label: chipLabel, color: .green, systemImage: "arrowtriangle.down.fill")
                 }

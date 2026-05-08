@@ -56,36 +56,44 @@ class SummaryViewModel {
         }
     }
     
-    var percentageChange: Double {
+    var percentageChange: Double? {
         let current = spending
-        let previous: Double
+//        let previous: Double
         
         switch selectedPeriod {
         case "Daily":
-            previous = transactions
-                .filter { Calendar.current.isDateInYesterday($0.date) }
-                .reduce(0) { $0 + $1.amount }
+            for daysBack in 1...7 {
+                guard let pastDate = Calendar.current.date(byAdding: .day, value: -daysBack, to: Date()) else { continue }
+                let previous = transactions
+                    .filter { Calendar.current.isDate($0.date, inSameDayAs: pastDate) }
+                    .reduce(0) { $0 + $1.amount }
+                if previous > 0 {
+                    return ((current - previous) / previous) * 100
+                }
+            }
+            return nil
         case "Weekly":
             let lastWeekStart = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date())!
-            previous = transactions
+            let previous = transactions
                 .filter {
                     let cal = Calendar.current
                     return cal.isDate($0.date, equalTo: lastWeekStart, toGranularity: .weekOfYear)
                 }
                 .reduce(0) { $0 + $1.amount }
+            guard previous > 0 else { return nil }
+            return ((current - previous) / previous) * 100
         case "Monthly":
             let lastMonth = Calendar.current.date(byAdding: .month, value: -1, to: Date())!
-            previous = transactions
+            let previous = transactions
                 .filter {
                     Calendar.current.isDate($0.date, equalTo: lastMonth, toGranularity: .weekOfMonth)
                 }
                 .reduce(0) { $0 + $1.amount }
+                guard previous > 0 else { return 0 }
+                return ((current - previous) / previous) * 100
         default:
-            return 0
+            return nil
         }
-        
-        guard previous > 0 else { return 0 }
-        return ((current - previous) / previous) * 100
     }
     
     var breakdownTransactions: [Transaction] {
