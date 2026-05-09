@@ -120,6 +120,7 @@ class SummaryViewModel {
     }
     
     func load() async {
+        guard !loading else { return }
         loading = true
         try? await Task.sleep(nanoseconds: 1_000_000_000)
         do {

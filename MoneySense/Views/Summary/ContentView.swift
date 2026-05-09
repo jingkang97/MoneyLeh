@@ -27,6 +27,7 @@ struct ContentView: View {
                 }
             }
             .task {
+                guard !summaryViewModel.hasData && !summaryViewModel.loading else { return }
                 await summaryViewModel.load()
             }
             .navigationTitle("Summary")
