@@ -61,9 +61,7 @@ class SummaryViewModel {
     }
     
     var percentageChange: Double? {
-        let current = spending
-//        let previous: Double
-        
+        let current = spending        
         switch selectedPeriod {
         case "Daily":
             for daysBack in 1...7 {
