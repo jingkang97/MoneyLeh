@@ -23,6 +23,7 @@ struct ExpenseFormView: View {
     @State private var receiptImage: UIImage? = nil
     @State private var showingFullPreview: Bool = false
     @State private var replacementItem: PhotosPickerItem?
+    @State private var isRemovingReceipt = false
 
     var body: some View {
         Form {
@@ -49,7 +50,6 @@ struct ExpenseFormView: View {
                 TextField("Add notes...", text: $notes, axis: .vertical)
                     .lineLimit(3...6)
                     .focused(focusedField, equals: .notes)
-                
             }
             
             Section {
@@ -61,21 +61,24 @@ struct ExpenseFormView: View {
                                 .scaledToFit()
                                 .frame(maxWidth: .infinity)
                                 .cornerRadius(10)
+                                .scaleEffect(isRemovingReceipt ? 0.05 : 1.0, anchor: .topTrailing)
+                                .opacity(isRemovingReceipt ? 0 : 1)
+                                .blur(radius: isRemovingReceipt ? 6 : 0)
+                                .animation(.spring(duration: 0.4, bounce: 0), value: isRemovingReceipt)
 
                             Color.clear
                                 .contentShape(Rectangle())
                                 .onTapGesture {
                                     showingFullPreview = true
                                 }
-                        }.overlay(alignment: .topTrailing) {
+                        }
+                        .overlay(alignment: .topTrailing) {
                             HStack(spacing: 8) {
-
                                 PhotosPicker(selection: $replacementItem, matching: .images) {
                                     Image(systemName: "repeat")
                                         .font(.footnote.weight(.semibold))
                                         .padding(7)
-//                                        .background(.ultraThinMaterial)
-                                        .contentShape(Circle())  // ← defines tap area without a visible background
+                                        .contentShape(Circle())
                                         .glassEffect(.regular.tint(.clear), in: Circle())
                                         .clipShape(Circle())
                                 }
@@ -83,14 +86,20 @@ struct ExpenseFormView: View {
                                 .allowsHitTesting(true)
 
                                 Button {
-                                    receiptItem = nil
-                                    receiptImage = nil
+                                    withAnimation(.spring(duration: 0.25, bounce: 0)) {
+                                        isRemovingReceipt = true
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                        receiptItem = nil
+                                        receiptImage = nil
+                                        isRemovingReceipt = false
+                                    }
                                 } label: {
                                     Image(systemName: "trash")
                                         .font(.footnote.weight(.semibold))
                                         .foregroundStyle(.red)
                                         .padding(7)
-                                        .contentShape(Circle())  // ← defines tap area without a visible background
+                                        .contentShape(Circle())
                                         .glassEffect(.regular.tint(.clear), in: Circle())
                                         .clipShape(Circle())
                                 }
@@ -100,8 +109,13 @@ struct ExpenseFormView: View {
                             .padding(10)
                         }
                     }
+                    .transition(.asymmetric(
+                        insertion: .scale(scale: 0.95, anchor: .top).combined(with: .opacity),
+                        removal: .scale(scale: 0.85, anchor: .top).combined(with: .opacity)
+                    ))
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets(top: 2, leading: 0, bottom: 8, trailing: 0))
+
                 } else {
                     PhotosPicker(selection: $receiptItem, matching: .images) {
                         VStack(spacing: 6) {
@@ -120,17 +134,21 @@ struct ExpenseFormView: View {
                                 .padding(4)
                         )
                     }
+                    .transition(.asymmetric(
+                        insertion: .scale(scale: 0.95, anchor: .top)
+                            .combined(with: .opacity)
+                            .animation(.spring(duration: 0.35, bounce: 0.1).delay(0.2)), // ← wait for image to finish removing
+                        removal: .opacity
+                    ))
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets(top: 2, leading: 1, bottom: 8, trailing: 4))
                 }
             }
+            .animation(.spring(duration: 0.45, bounce: 0.1), value: receiptImage == nil)
         }
         .listSectionSpacing(20)
         .onChange(of: receiptItem) { _, newItem in
-            guard let newItem else {
-                return
-            }
-
+            guard let newItem else { return }
             Task {
                 if let data = try? await newItem.loadTransferable(type: Data.self),
                    let uiImage = UIImage(data: data) {
@@ -142,11 +160,9 @@ struct ExpenseFormView: View {
         }
         .onChange(of: replacementItem) { _, newItem in
             guard let newItem else { return }
-
             Task {
                 if let data = try? await newItem.loadTransferable(type: Data.self),
                    let uiImage = UIImage(data: data) {
-
                     await MainActor.run {
                         receiptImage = uiImage
                         receiptItem = newItem
@@ -154,7 +170,7 @@ struct ExpenseFormView: View {
                 }
             }
         }
-        .sheet (isPresented: $showingFullPreview) {
+        .sheet(isPresented: $showingFullPreview) {
             if let image = receiptImage {
                 ReceiptPreviewSheet(image: image)
             }
