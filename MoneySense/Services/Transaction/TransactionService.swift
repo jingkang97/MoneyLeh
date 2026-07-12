@@ -20,6 +20,15 @@ class TransactionService {
             .execute()
             .value
     }
+
+    func fetchAll() async throws -> [Transaction] {
+        try await db
+            .from("transactions")
+            .select("*, category: categories(id, name, color, icon)")
+            .order("date", ascending: false)
+            .execute()
+            .value
+    }
     
     func fetchLastTwoMonths() async throws -> [Transaction] {
         let now = Date()
@@ -39,6 +48,22 @@ class TransactionService {
         try await db
             .from("transactions")
             .insert(transaction)
+            .execute()
+    }
+
+    func update(id: UUID, _ transaction: Transaction.Update) async throws {
+        try await db
+            .from("transactions")
+            .update(transaction)
+            .eq("id", value: id.uuidString)
+            .execute()
+    }
+
+    func delete(id: UUID) async throws {
+        try await db
+            .from("transactions")
+            .delete()
+            .eq("id", value: id.uuidString)
             .execute()
     }
 }

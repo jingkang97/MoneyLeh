@@ -18,6 +18,7 @@ extension Transaction {
         notes: nil,
         receiptUrl: nil,
         createdAt: Date(),
+        updatedAt: nil,
         category: SpendingCategory(
             id: UUID(),
             userId: nil,

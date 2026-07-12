@@ -25,6 +25,28 @@ struct ExpenseFormView: View {
     @State private var replacementItem: PhotosPickerItem?
     @State private var isRemovingReceipt = false
 
+    private var categorySelection: Binding<UUID?> {
+        Binding(
+            get: { category?.id },
+            set: { id in
+                category = id.flatMap { categoryId in
+                    categories.first { $0.id == categoryId }
+                }
+            }
+        )
+    }
+
+    private var sourceSelection: Binding<UUID?> {
+        Binding(
+            get: { source?.id },
+            set: { id in
+                source = id.flatMap { sourceId in
+                    sources.first { $0.id == sourceId }
+                }
+            }
+        )
+    }
+
     var body: some View {
         Form {
             Section {
@@ -34,16 +56,16 @@ struct ExpenseFormView: View {
                         .focused(focusedField, equals: .description)
                 }
                 DatePicker("Date", selection: $date, displayedComponents: [.date])
-                Picker("Source", selection: $source) {
-                    Text("None").tag(Optional<SpendingSource>(nil))
+                Picker("Source", selection: sourceSelection) {
+                    Text("None").tag(Optional<UUID>(nil))
                     ForEach(sources) { src in
-                        Text(src.name).tag(Optional(src))
+                        Text(src.name).tag(Optional(src.id))
                     }
                 }
-                Picker("Category", selection: $category) {
-                    Text("None").tag(Optional<SpendingCategory>(nil))
+                Picker("Category", selection: categorySelection) {
+                    Text("None").tag(Optional<UUID>(nil))
                     ForEach(categories) { cat in
-                        Text(cat.name).tag(Optional(cat))
+                        Text(cat.name).tag(Optional(cat.id))
                     }
                 }
                 

@@ -14,12 +14,30 @@ struct AddTransactionView: View {
     @EnvironmentObject var sourceStore: SourceStore
     @State private var viewModel = AddTransactionViewModel()
     @FocusState private var focusedField: Field?
-    
+
+    let mode: TransactionFormMode
     var onSuccess: (() -> Void)? = nil
+
+    init(mode: TransactionFormMode = .add, onSuccess: (() -> Void)? = nil) {
+        self.mode = mode
+        self.onSuccess = onSuccess
+    }
+
+    /// Dismiss keyboard first, then close sheet — avoids corrupting the home nav bar when using X.
+    private func closeSheet() {
+        focusedField = nil
+        UIApplication.shared.endEditing()
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(200))
+            dismiss()
+        }
+    }
     
     var header: some View {
         HStack {
-            Button { dismiss() } label: {
+            Button {
+                closeSheet()
+            } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(.black)
@@ -27,7 +45,7 @@ struct AddTransactionView: View {
             }
             .glassEffect(.regular.interactive(), in: Circle())
             Spacer()
-            Text("Add Transaction")
+            Text(viewModel.screenTitle)
                 .font(.headline)
             Spacer()
             Button {
@@ -93,10 +111,7 @@ struct AddTransactionView: View {
                 )
             }
             .background(Color(.systemGray6).ignoresSafeArea())
-            .task {
-//                try? await Task.sleep(for: .milliseconds(300))
-                focusedField = .amount
-            }
+            .toolbar(.hidden, for: .navigationBar)
             .alert("Error", isPresented: .constant(viewModel.error != nil)) {
                 Button("OK") { viewModel.error = nil }
             } message: {
@@ -137,7 +152,7 @@ struct AddTransactionView: View {
             }
             .overlay {
                 if viewModel.showSuccess {
-                    SuccessOverlayView()
+                    SuccessOverlayView(message: viewModel.successMessage)
                 }
             }
             .overlay {
@@ -148,19 +163,27 @@ struct AddTransactionView: View {
             .onChange(of: viewModel.didSubmitSuccessfully) { _, success in
                 if success {
                     onSuccess?()
-                    dismiss()
+                    closeSheet()
                 }
             }
+            .onDisappear {
+                UIApplication.shared.endEditing()
+            }
             .task {
-                focusedField = .amount
-                if let firstCategory = categoryStore.categories.first {
-                        viewModel.category = firstCategory
-                    }
-                print("📦 categoryStore has:", categoryStore.categories.count, "categories")
-                if let firstSource = sourceStore.sources.first {
-                    viewModel.source = firstSource
+                switch mode {
+                case .add:
+                    viewModel.configureForAdd(
+                        categories: categoryStore.categories,
+                        sources: sourceStore.sources
+                    )
+                    focusedField = .amount
+                case .edit(let transaction):
+                    viewModel.configureForEdit(
+                        transaction,
+                        categories: categoryStore.categories,
+                        sources: sourceStore.sources
+                    )
                 }
-                print("📦 sourceStore has:", sourceStore.sources.count, "sources")
             }
         }
     }

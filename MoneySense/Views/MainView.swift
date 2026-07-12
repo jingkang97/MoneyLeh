@@ -14,19 +14,33 @@ struct MainView: View {
     @State var summaryViewModel = SummaryViewModel()
     @StateObject private var categoryStore = CategoryStore()
     @StateObject private var sourceStore = SourceStore()
-    
+
     var body: some View {
-        TabView (selection: $selectedTab) {
+        TabView(selection: $selectedTab) {
             Tab("Home", systemImage: "house.fill", value: .home) {
                 ContentView(
                     transactionViewModel: transactionViewModel,
                     summaryViewModel: summaryViewModel,
-                    onAddTransaction: { showAddSheet = true }
+                    isAddSheetPresented: $showAddSheet
                 )
+                .environmentObject(categoryStore)
+                .environmentObject(sourceStore)
             }
-            Tab("Stats", systemImage: "chart.pie.fill", value: .stats) { Text("Stats")}
-            Tab("Budget", systemImage: "wallet.pass.fill", value: .budget) { Text("Budget")}
-            Tab("More", systemImage: "ellipsis.circle.fill", value: .more) {Text("More")}
+            Tab("Stats", systemImage: "chart.pie.fill", value: .stats) {
+                StatisticsView()
+            }
+            Tab("Budget", systemImage: "wallet.pass.fill", value: .budget) {
+                NavigationStack {
+                    ScrollView { }
+                        .appNavigationHeader("Budget")
+                }
+            }
+            Tab("More", systemImage: "ellipsis.circle.fill", value: .more) {
+                NavigationStack {
+                    ScrollView { }
+                        .appNavigationHeader("More")
+                }
+            }
             Tab("Add", systemImage: "plus", value: .add, role: .search) {}
         }
         .onChange(of: selectedTab) { oldValue, newValue in
@@ -34,12 +48,15 @@ struct MainView: View {
                 showAddSheet = true
                 selectedTab = oldValue
             }
-        }.sheet(isPresented: $showAddSheet) {
+        }
+        .sheet(isPresented: $showAddSheet, onDismiss: {
+            UIApplication.shared.endEditing()
+        }) {
             AddTransactionView {
                 Task {
                     async let t1 = transactionViewModel.load()
                     async let t2 = summaryViewModel.load()
-                    
+
                     _ = await (t1, t2)
                 }
             }

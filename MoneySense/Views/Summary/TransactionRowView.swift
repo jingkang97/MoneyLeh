@@ -27,11 +27,16 @@ struct TransactionRowView: View {
                     .foregroundColor(categoryColor)
             }
             
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(transaction.description ?? "Unnamed")
                 Text(transaction.date, style: .date)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                if let formattedUpdatedAt = transaction.formattedUpdatedAt {
+                    Text("Edited \(formattedUpdatedAt)")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
             }
             
             Spacer()

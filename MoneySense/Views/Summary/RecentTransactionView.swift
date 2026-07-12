@@ -2,8 +2,9 @@ import SwiftUI
 import Shimmer
 
 struct RecentTransactionView: View {
-    @State var viewModel: RecentTransactionViewModel
+    var viewModel: RecentTransactionViewModel
     let currencyCode: String
+    var isSeeAllDisabled: Bool = false
     
     private var displayTransactions: [Transaction] {
         viewModel.isLoading ? (0..<5).map { _ in .placeholder } : viewModel.transactions
@@ -17,13 +18,15 @@ struct RecentTransactionView: View {
                 
                 Spacer()
                 
-                Button {} label: {
+                NavigationLink(value: SummaryRoute.allTransactions) {
                     HStack(spacing: 4) {
                         Text("See All")
                         Image(systemName: "chevron.right")
                     }
                     .font(.subheadline)
                 }
+                .disabled(isSeeAllDisabled)
+                .opacity(isSeeAllDisabled ? 0.4 : 1)
             }
             .padding(.horizontal, 12)
             

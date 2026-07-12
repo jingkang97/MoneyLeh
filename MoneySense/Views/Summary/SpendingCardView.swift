@@ -17,15 +17,15 @@ struct SpendingCardView: View {
     let onPeriodChange: (String) -> Void
     
     private var chipColor: Color {
-        guard let change = percentageChange else { return .blue }
-        return change <= 0 ? .green : .red
+        guard let change = percentageChange, change != 0 else { return .blue }
+        return change < 0 ? .green : .red
     }
 
-    private var chipIcon: String? {
-        guard let change = percentageChange else { return nil }
-        return change <= 0 ? "arrowtriangle.down.fill" : "arrowtriangle.up.fill"
+    private var chipIcon: String {
+        guard let change = percentageChange, change != 0 else { return "minus" }
+        return change < 0 ? "arrowtriangle.down.fill" : "arrowtriangle.up.fill"
     }
-    
+
     private var chipLabel: String {
         guard let change = percentageChange else { return "New" }
         return String(format: "%.0f%%", abs(change))
@@ -50,7 +50,7 @@ struct SpendingCardView: View {
                             Text("$000.00")
                                 .font(.system(size: 40, weight: .bold, design: .rounded))
                             Spacer()
-                            Chip(label: "00%", color: .green, systemImage: "arrowtriangle.down.fill")
+                            Chip(label: "00%", color: .blue, systemImage: "minus")
                         }
                         .redacted(reason: .placeholder)
                     }
@@ -66,7 +66,7 @@ struct SpendingCardView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
                     Spacer()
-                    Chip(label: chipLabel, color: .green, systemImage: "arrowtriangle.down.fill")
+                    Chip(label: chipLabel, color: chipColor, systemImage: chipIcon)
                 }
             }
         }

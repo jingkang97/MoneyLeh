@@ -17,6 +17,7 @@ struct Transaction: Identifiable, Codable {
     let notes: String?
     let receiptUrl: String?
     let createdAt: Date
+    let updatedAt: Date?
     let category: SpendingCategory?
     
 //    struct Category: Codable {
@@ -36,11 +37,20 @@ struct Transaction: Identifiable, Codable {
         case notes
         case receiptUrl = "receipt_url"
         case createdAt = "created_at"
+        case updatedAt = "updated_at"
         case category
     }
     
     var amount: Double {
         Double(amountInCents) / 100.0
+    }
+
+    var wasEdited: Bool {
+        updatedAt != nil
+    }
+
+    var formattedUpdatedAt: String? {
+        updatedAt?.formatted(date: .abbreviated, time: .shortened)
     }
     
     struct New: Codable {
@@ -62,6 +72,28 @@ struct Transaction: Identifiable, Codable {
             case categoryId = "category_id"
             case notes
             case receiptUrl = "receipt_url"
+        }
+    }
+
+    struct Update: Encodable {
+        let amountInCents: Int
+        let description: String?
+        let date: String
+        let sourceId: String?
+        let categoryId: String?
+        let notes: String?
+        let receiptUrl: String?
+        let updatedAt: String
+
+        enum CodingKeys: String, CodingKey {
+            case amountInCents = "amount_in_cents"
+            case description
+            case date
+            case sourceId = "source_id"
+            case categoryId = "category_id"
+            case notes
+            case receiptUrl = "receipt_url"
+            case updatedAt = "updated_at"
         }
     }
 }
