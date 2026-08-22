@@ -64,16 +64,12 @@ class SummaryViewModel {
         let current = spending        
         switch selectedPeriod {
         case "Daily":
-            for daysBack in 1...7 {
-                guard let pastDate = Calendar.current.date(byAdding: .day, value: -daysBack, to: Date()) else { continue }
-                let previous = transactions
-                    .filter { Calendar.current.isDate($0.date, inSameDayAs: pastDate) }
-                    .reduce(0) { $0 + $1.amount }
-                if previous > 0 {
-                    return ((current - previous) / previous) * 100
-                }
-            }
-            return nil
+            guard let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date()) else { return nil }
+            let previous = transactions
+                .filter { Calendar.current.isDate($0.date, inSameDayAs: yesterday) }
+                .reduce(0) { $0 + $1.amount }
+            guard previous > 0 else { return nil }
+            return ((current - previous) / previous) * 100
         case "Weekly":
             let lastWeekStart = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date())!
             let previous = transactions
@@ -91,7 +87,7 @@ class SummaryViewModel {
                     Calendar.current.isDate($0.date, equalTo: lastMonth, toGranularity: .weekOfMonth)
                 }
                 .reduce(0) { $0 + $1.amount }
-                guard previous > 0 else { return 0 }
+                guard previous > 0 else { return nil }
                 return ((current - previous) / previous) * 100
         default:
             return nil
@@ -116,16 +112,33 @@ class SummaryViewModel {
     var breakdownTotal: Double {
         breakdownTransactions.reduce(0) { $0 + $1.amount }
     }
+
+    /// Previous totals so Summary can bobble after a reload even if the view is recreated.
+    var pendingSpendingFrom: Double?
+    var pendingBreakdownFrom: Double?
     
-    func load() async {
+    func load(showSkeleton: Bool = false) async {
         guard !loading else { return }
-        loading = true
-        // try? await Task.sleep(nanoseconds: 1_000_000_000)
+        let hadData = hasData
+        let spendingBefore = spending
+        let breakdownBefore = breakdownTotal
+        if showSkeleton || !hadData {
+            loading = true
+        }
         do {
             transactions = try await service.fetchLastTwoMonths()
+            if hadData {
+                if spendingBefore != spending {
+                    pendingSpendingFrom = spendingBefore
+                }
+                if breakdownBefore != breakdownTotal {
+                    pendingBreakdownFrom = breakdownBefore
+                }
+            }
+            loading = false
         } catch {
             self.error = error
+            loading = false
         }
-        loading = false
     }
 }

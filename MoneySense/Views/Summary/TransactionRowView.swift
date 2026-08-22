@@ -42,6 +42,8 @@ struct TransactionRowView: View {
             Spacer()
             
             Text(transaction.amount, format: .currency(code: currencyCode))
+                .monospacedDigit()
+                .contentTransition(.numericText())
                 .foregroundStyle(.red)
         }
         .padding()

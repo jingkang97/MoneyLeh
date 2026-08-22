@@ -30,6 +30,16 @@ class TransactionService {
             .value
     }
     
+    func fetchSince(_ date: Date) async throws -> [Transaction] {
+        try await db
+            .from("transactions")
+            .select("*, category: categories(id, name, color, icon)")
+            .gte("date", value: date.isoString)
+            .order("date", ascending: false)
+            .execute()
+            .value
+    }
+
     func fetchLastTwoMonths() async throws -> [Transaction] {
         let now = Date()
         let oneMonthAgo = Calendar.current.date(byAdding: .month, value: -1, to: now)!

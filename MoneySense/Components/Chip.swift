@@ -11,16 +11,17 @@ struct Chip: View {
     let label: String
     let color: Color
     let systemImage: String
+    var compact: Bool = false
     
     var body: some View {
-        HStack {
+        HStack(spacing: compact ? 4 : 6) {
             Text(label).fontWeight(.semibold)
             Image(systemName: systemImage)
-                .font(.caption)
+                .font(compact ? .system(size: 8) : .caption)
         }
-        .font(.subheadline)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
+        .font(compact ? .caption2 : .subheadline)
+        .padding(.horizontal, compact ? 8 : 12)
+        .padding(.vertical, compact ? 4 : 6)
         .background(color.opacity(0.15))
         .foregroundColor(color)
         .clipShape(Capsule())

@@ -23,4 +23,12 @@ extension Double {
             return formatter.string(from: NSNumber(value: self)) ?? "$0"
         }
     }
+
+    func cappedPercentLabel(max: Double = 100) -> String {
+        let value = abs(self)
+        if value > max {
+            return String(format: "%.0f%%+", max)
+        }
+        return String(format: "%.0f%%", value)
+    }
 }

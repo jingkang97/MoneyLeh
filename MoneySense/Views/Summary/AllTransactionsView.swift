@@ -177,18 +177,12 @@ struct AllTransactionsView: View {
                     Button {
                         exportStatement()
                     } label: {
-                        Label {
-                            Text("View")
-                                .font(.subheadline.weight(.medium))
-                        } icon: {
-                            Image("FileEarmarkPDF")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 20, height: 20)
-                        }
-                        .labelStyle(.titleAndIcon)
+                        Image("FileEarmarkPDF")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
                     }
-                    .accessibilityLabel("View statement")
+                    .accessibilityLabel("View PDF statement")
                     .disabled(!canExport || isExporting)
                 }
                 .padding(.horizontal, 8)

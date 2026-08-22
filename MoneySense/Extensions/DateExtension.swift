@@ -14,4 +14,8 @@ extension Date {
     var startOfMonth: Date {
         Calendar.current.dateInterval(of: .month, for: self)!.start
     }
+
+    var startOfYear: Date {
+        Calendar.current.dateInterval(of: .year, for: self)!.start
+    }
 }

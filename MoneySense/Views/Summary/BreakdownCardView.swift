@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Charts
 import Shimmer
 
 struct BreakdownCardView: View {
@@ -15,6 +14,12 @@ struct BreakdownCardView: View {
     let total: Double
     let currencyCode: String
     let isLoading: Bool
+    var animateFrom: Double? = nil
+    var isAnimationPaused: Bool = false
+    var onConsumedAnimation: () -> Void = {}
+    @State private var displayedTotal: Double = 0
+
+    private let donutSize: CGFloat = 160
 
     private var isEmpty: Bool {
         !isLoading && (data.isEmpty || total == 0)
@@ -32,6 +37,47 @@ struct BreakdownCardView: View {
                     .shimmering(active: isLoading)
             }
         }
+        .onAppear {
+            revealTotal(forceAnimate: false)
+        }
+        .onChange(of: isLoading) { wasLoading, loading in
+            if loading {
+                displayedTotal = 0
+            } else if wasLoading {
+                withAnimation(.easeInOut(duration: 0.45)) {
+                    displayedTotal = total
+                }
+            }
+        }
+        .onChange(of: total) { oldValue, newValue in
+            guard !isLoading, !isAnimationPaused else { return }
+            displayedTotal = oldValue
+            withAnimation(.easeInOut(duration: 0.45)) {
+                displayedTotal = newValue
+            }
+            onConsumedAnimation()
+        }
+        .onChange(of: animateFrom) { _, _ in
+            revealTotal(forceAnimate: true)
+        }
+        .onChange(of: isAnimationPaused) { _, paused in
+            if !paused {
+                revealTotal(forceAnimate: true)
+            }
+        }
+    }
+
+    private func revealTotal(forceAnimate: Bool) {
+        guard !isLoading, !isAnimationPaused else { return }
+        if let from = animateFrom, from != total {
+            displayedTotal = from
+            withAnimation(.easeInOut(duration: 0.45)) {
+                displayedTotal = total
+            }
+            onConsumedAnimation()
+        } else if !forceAnimate {
+            displayedTotal = total
+        }
     }
 
     // MARK: - Filled / loading
@@ -39,21 +85,12 @@ struct BreakdownCardView: View {
     private var chartContent: some View {
         HStack(spacing: 20) {
             ZStack {
-                if isLoading {
-                    Circle()
-                        .strokeBorder(Color.secondary.opacity(0.2), lineWidth: 30)
-                        .frame(width: 160, height: 160)
-                } else {
-                    Chart(data) { item in
-                        SectorMark(
-                            angle: .value("Amount", item.amount),
-                            innerRadius: .ratio(0.65),
-                            angularInset: 3
-                        )
-                        .cornerRadius(6)
-                        .foregroundStyle(item.color)
-                    }
-                }
+                DonutChartView(
+                    data: data,
+                    isLoading: isLoading,
+                    size: donutSize,
+                    innerRadius: 0.65
+                )
 
                 centerTotalLabel
             }
@@ -81,17 +118,16 @@ struct BreakdownCardView: View {
         }
     }
 
-    // MARK: - Empty (Apple-style)
+    // MARK: - Empty
 
     private var emptyState: some View {
         HStack(alignment: .center, spacing: 20) {
             ZStack {
-                Circle()
-                    .strokeBorder(
-                        Color(.systemGray4).opacity(0.45),
-                        lineWidth: 26
-                    )
-                    .frame(width: 150, height: 150)
+                DonutChartView(
+                    data: [],
+                    size: donutSize,
+                    innerRadius: 0.65
+                )
 
                 centerTotalLabel
             }
@@ -100,7 +136,7 @@ struct BreakdownCardView: View {
             Spacer()
 
             Text("No spending this month")
-                .font(.body.weight(.semibold))
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -111,12 +147,13 @@ struct BreakdownCardView: View {
 
     private var centerTotalLabel: some View {
         VStack(spacing: 2) {
-            Text(total.walletFormatted(currencyCode: currencyCode))
+            Text(displayedTotal.walletFormatted(currencyCode: currencyCode))
                 .font(.title2.bold())
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
                 .frame(maxWidth: 120)
+                .contentTransition(.numericText())
                 .redacted(reason: isLoading ? .placeholder : [])
             Text("spent")
                 .font(.caption)

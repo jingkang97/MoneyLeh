@@ -12,6 +12,8 @@ struct MainView: View {
     @State var selectedTab: Tabs = .home
     @State var transactionViewModel = RecentTransactionViewModel()
     @State var summaryViewModel = SummaryViewModel()
+    @State private var statsReloadToken = 0
+    @State private var shouldRefreshAfterAdd = false
     @StateObject private var categoryStore = CategoryStore()
     @StateObject private var sourceStore = SourceStore()
 
@@ -27,7 +29,7 @@ struct MainView: View {
                 .environmentObject(sourceStore)
             }
             Tab("Stats", systemImage: "chart.pie.fill", value: .stats) {
-                StatisticsView()
+                StatisticsView(reloadToken: statsReloadToken)
             }
             Tab("Budget", systemImage: "wallet.pass.fill", value: .budget) {
                 NavigationStack {
@@ -51,14 +53,17 @@ struct MainView: View {
         }
         .sheet(isPresented: $showAddSheet, onDismiss: {
             UIApplication.shared.endEditing()
+            guard shouldRefreshAfterAdd else { return }
+            shouldRefreshAfterAdd = false
+            Task {
+                async let t1 = transactionViewModel.load(showSkeleton: false)
+                async let t2 = summaryViewModel.load(showSkeleton: false)
+                _ = await (t1, t2)
+                statsReloadToken += 1
+            }
         }) {
             AddTransactionView {
-                Task {
-                    async let t1 = transactionViewModel.load()
-                    async let t2 = summaryViewModel.load()
-
-                    _ = await (t1, t2)
-                }
+                shouldRefreshAfterAdd = true
             }
             .environmentObject(categoryStore)
             .environmentObject(sourceStore)

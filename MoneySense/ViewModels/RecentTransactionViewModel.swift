@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 @MainActor
 @Observable
@@ -16,20 +17,19 @@ class RecentTransactionViewModel {
     
     private let service = TransactionService()
     
-    func load() async {
-        isLoading = true
-        print("🟡 isLoading:", isLoading)
-        print("🟡 displayTransactions count should be 5")
-        // try? await Task.sleep(nanoseconds: 1_000_000_000)
+    func load(showSkeleton: Bool = false) async {
+        if showSkeleton || transactions.isEmpty {
+            isLoading = true
+        }
         do {
-            transactions = try await service.fetchRecent()
-            transactions.forEach { print("→ \($0.description ?? "nil") \($0.category?.name ?? "no category")") }
-
+            let result = try await service.fetchRecent()
+            withAnimation(.easeInOut(duration: 0.45)) {
+                transactions = result
+                isLoading = false
+            }
         } catch {
             self.error = error
-            print("❌ LOAD ERROR:", error)
+            isLoading = false
         }
-        isLoading = false
-        print("🟢 isLoading:", isLoading)
     }
 }

@@ -81,7 +81,7 @@ struct ContentView: View {
     private func refreshHomeData() {
         Task {
             async let t1 = transactionViewModel.load()
-            async let t2 = summaryViewModel.load()
+            async let t2 = summaryViewModel.load(showSkeleton: false)
             _ = await (t1, t2)
         }
     }
@@ -96,14 +96,20 @@ struct ContentView: View {
                     currencyCode: currencyCode,
                     isLoading: summaryViewModel.loading,
                     percentageChange: summaryViewModel.percentageChange,
-                    onPeriodChange: { summaryViewModel.selectedPeriod = $0 }
+                    onPeriodChange: { summaryViewModel.selectedPeriod = $0 },
+                    animateFrom: summaryViewModel.pendingSpendingFrom,
+                    isAnimationPaused: isAddSheetPresented,
+                    onConsumedAnimation: { summaryViewModel.pendingSpendingFrom = nil }
                 )
                 
                 BreakdownCardView(
                     data: summaryViewModel.sortedBreakdownData,
                     total: summaryViewModel.breakdownTotal,
                     currencyCode: currencyCode,
-                    isLoading: summaryViewModel.loading
+                    isLoading: summaryViewModel.loading,
+                    animateFrom: summaryViewModel.pendingBreakdownFrom,
+                    isAnimationPaused: isAddSheetPresented,
+                    onConsumedAnimation: { summaryViewModel.pendingBreakdownFrom = nil }
                 )
                 
                 RecentTransactionView(
@@ -116,14 +122,9 @@ struct ContentView: View {
             .padding()
         }
         .refreshable {
-            print("🔄 refreshing transactionViewModel:", ObjectIdentifier(transactionViewModel))
-            await Task {
-                async let t1 = transactionViewModel.load()
-                async let t2 = summaryViewModel.load()
-                
-                _ = await (t1, t2)
-                
-            }.value
+            async let t1 = transactionViewModel.load(showSkeleton: false)
+            async let t2 = summaryViewModel.load(showSkeleton: false)
+            _ = await (t1, t2)
         }
     }
 }

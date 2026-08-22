@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CategorySpending: Identifiable {
-    let id = UUID()
+    var id: String { category }
     let category: String
     let amount: Double
     let color: Color
